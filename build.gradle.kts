@@ -40,7 +40,7 @@ val springDataVersion = "2.5.12"
 val springFrameworkVersion = "5.3.27"
 //测试使用的 jpa 引擎，默认 hibernate
 val jpa = project.findProperty("jpaImpl") ?: "hibernate"
-println("jpa: $jpa \n")
+
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     fun compileAndTest(dependencyNotation: Any) {
