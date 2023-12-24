@@ -1,5 +1,8 @@
 @file:Suppress("VulnerableLibrariesLocal")
 
+import java.net.URI
+import java.util.*
+
 
 plugins {
     kotlin("jvm") version "1.9.21"
@@ -7,8 +10,8 @@ plugins {
     id("java-library")
     signing
     id("org.jetbrains.dokka") version "1.9.10"
+    kotlin("plugin.jpa") version "1.9.21"
 }
-
 
 /**
  * @return 获取真实版本号。
@@ -22,19 +25,49 @@ group = "io.github.caijiang"
 version = fetchRealVersion()
 
 repositories {
+//        在中国区域的时候，使用阿里云加速
+    if (Locale.getDefault().country == "CN") {
+        maven {
+            url = URI("https://maven.aliyun.com/repository/public/")
+        }
+    }
+
+    mavenLocal()
     mavenCentral()
 }
 
+val springDataVersion = "2.5.12"
+val springFrameworkVersion = "5.3.27"
+//测试使用的 jpa 引擎，默认 hibernate
+val jpa = project.findProperty("jpaImpl") ?: "hibernate"
+println("jpa: $jpa \n")
 dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
     fun compileAndTest(dependencyNotation: Any) {
         compileOnly(dependencyNotation)
         testImplementation(dependencyNotation)
     }
     compileAndTest("org.apache.httpcomponents.client5:httpclient5:5.3")
     compileAndTest("org.apache.httpcomponents:httpclient:4.5.14")
+    compileOnly("javax.persistence:javax.persistence-api:2.2")
+    compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
     compileOnly("org.slf4j:slf4j-api:2.0.9")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.slf4j:slf4j-simple:2.0.9")
+    testImplementation("org.springframework:spring-test:$springFrameworkVersion")
+    testImplementation("org.springframework:spring-context:$springFrameworkVersion")
+//
+    testCompileOnly("org.hibernate:hibernate-core:5.4.33")
+    testCompileOnly("org.eclipse.persistence:eclipselink:2.7.13")
+    if (jpa == "hibernate") {
+        testImplementation("org.hibernate:hibernate-core:5.4.33")
+    } else {
+        testImplementation("org.eclipse.persistence:eclipselink:2.7.13")
+    }
+
+    testImplementation("org.apache.commons:commons-lang3:3.8.1")
+    testImplementation("org.assertj:assertj-core:3.11.1")
+    testRuntimeOnly("com.h2database:h2:2.2.224")
 }
 
 tasks.test {
@@ -42,6 +75,10 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(8)
+}
+tasks.compileKotlin {
+    compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
+//    dependsOn(processResources)
 }
 
 // publish
