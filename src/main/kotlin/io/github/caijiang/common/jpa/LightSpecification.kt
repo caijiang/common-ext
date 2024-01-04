@@ -33,6 +33,11 @@ fun interface LightSpecification<T> {
         }
     }
 
+    fun <X : T> upcast(): LightSpecification<X> {
+        return LightSpecification { root, query, cb ->
+            toPredicate(root, query, cb)
+        }
+    }
 
     /**
      * @see Specification.and
@@ -47,6 +52,8 @@ fun interface LightSpecification<T> {
     fun or(other: LightSpecification<T>?): LightSpecification<T> {
         return LightSpecifications.composed(this, other, LightSpecifications.CompositionType.OR)
     }
+
+    operator fun not(): LightSpecification<T> = not(this)
 
     /**
      * 转换成其他实体的规格

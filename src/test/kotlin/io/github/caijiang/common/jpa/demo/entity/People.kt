@@ -16,7 +16,9 @@ data class People(
     var id: Long? = null,
     @Column(length = 50)
     val name: String,
+    val age: Int = 0,
     val enabled: Boolean = true,
+    val nullableText: String? = null,
     @ElementCollection
     val favorites: MutableSet<String> = Collections.emptySet(),
     @ElementCollection
@@ -25,7 +27,7 @@ data class People(
     val friends: MutableList<People> = Collections.emptyList(),
     @ElementCollection
     val attributes: MutableMap<String, String> = Collections.emptyMap()
-) {
+) : Animal() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null) return false
@@ -41,7 +43,7 @@ data class People(
 
     @Override
     override fun toString(): String {
-        return this::class.simpleName + "(id = $id )"
+        return this::class.simpleName + "(id = $id , name = $name , age = $age )"
     }
 
 }

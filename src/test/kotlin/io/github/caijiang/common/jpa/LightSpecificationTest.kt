@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import javax.persistence.criteria.JoinType
+import kotlin.math.max
 import kotlin.test.Test
 
 
@@ -42,7 +43,15 @@ class LightSpecificationTest {
             peopleRepository.count(
                 nameMatchSpec.or(enabledSpec).toSpring()
             )
-        ).isEqualTo(0L)
+        ).isEqualTo(
+            max(
+                peopleRepository.count(
+                    nameMatchSpec.toSpring()
+                ), peopleRepository.count(
+                    enabledSpec.toSpring()
+                )
+            )
+        )
 
         val id = peopleRepository.save(People(null, name)).id!!
 
