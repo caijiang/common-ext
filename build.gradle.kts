@@ -108,16 +108,26 @@ val dokkaJavadocJar by tasks.register<Jar>("dokkaJavadocJar") {
     dependsOn(tasks.dokkaJavadoc)
     from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
     archiveClassifier.set("javadoc")
+    archiveBaseName = "${project.name}-$ee"
 }
 
 val dokkaHtmlJar by tasks.register<Jar>("dokkaHtmlJar") {
     dependsOn(tasks.dokkaHtml)
     from(tasks.dokkaHtml.flatMap { it.outputDirectory })
     archiveClassifier.set("html-doc")
+    archiveBaseName = "${project.name}-$ee"
 }
 
 java {
     withSourcesJar()
+}
+
+tasks.jar {
+    archiveBaseName = "${project.name}-$ee"
+}
+
+tasks.named<AbstractArchiveTask>("sourcesJar") {
+    archiveBaseName = "${project.name}-$ee"
 }
 
 extensions.configure<PublishingExtension> {
