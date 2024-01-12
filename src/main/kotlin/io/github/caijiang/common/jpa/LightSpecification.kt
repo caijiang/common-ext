@@ -1,10 +1,10 @@
 package io.github.caijiang.common.jpa
 
+import io.github.caijiang.common.CriteriaBuilder
+import io.github.caijiang.common.CriteriaQuery
+import io.github.caijiang.common.From
+import io.github.caijiang.common.Predicate
 import org.springframework.data.jpa.domain.Specification
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.From
-import javax.persistence.criteria.Predicate
 
 /**
  *

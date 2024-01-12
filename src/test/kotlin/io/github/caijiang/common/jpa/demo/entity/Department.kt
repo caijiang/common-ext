@@ -1,8 +1,8 @@
 package io.github.caijiang.common.jpa.demo.entity
 
+import io.github.caijiang.common.*
 import io.github.caijiang.common.jpa.demo.jpaEntityEffectiveClass
 import io.github.caijiang.common.jpa.demo.jpaHashCode
-import javax.persistence.*
 
 /**
  * @author CJ

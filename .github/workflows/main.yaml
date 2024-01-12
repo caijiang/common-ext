@@ -24,6 +24,7 @@ jobs:
       matrix:
         java-version: [ 8 ]
         jpa-implements: [ hibernate,eclipseLink ]
+        ee-version: [ java,jakarta ]
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -41,6 +42,7 @@ jobs:
       - name: Build
         env:
           ORG_GRADLE_PROJECT_jpaImpl: ${{ matrix.jpa-implements }}
+          ORG_GRADLE_PROJECT_ee: ${{ matrix.ee-version }}
         run: ./gradlew -i test
 
   # This workflow contains a single job called "build"
@@ -52,6 +54,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 8 ]
+        ee-version: [ java,jakarta ]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -70,6 +73,7 @@ jobs:
       - run: java -version
       - name: Build
         env:
+          ORG_GRADLE_PROJECT_ee: ${{ matrix.ee-version }}
           secretKeyRingFileBase64: ${{ secrets.secretKeyRingFileBase64 }}
           mavenUsername: ${{ secrets.MAVEN_USERNAME }}
           mavenPassword: ${{ secrets.MAVEN_PASSWORD }}

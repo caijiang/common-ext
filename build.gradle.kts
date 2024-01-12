@@ -1,6 +1,8 @@
 @file:Suppress("VulnerableLibrariesLocal")
 
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.util.*
 
 
@@ -36,8 +38,15 @@ repositories {
     mavenCentral()
 }
 
-val springDataVersion = "2.5.12"
-val springFrameworkVersion = "5.3.27"
+val ee = project.findProperty("ee") ?: "java" // jakarta
+val jdkVersion = if (ee == "java") 8 else 17
+// https://stackoverflow.com/questions/77539033/how-to-avoid-compatibility-issues-between-java-ee-and-jakarta-ee
+val junitVersion = if (ee == "java") "5.6.3" else "5.10.1"
+val springDataVersion = if (ee == "java") "2.5.12" else "3.2.1"
+val springFrameworkVersion = if (ee == "java") "5.3.19" else "6.1.2"
+val persistenceVersion = if (ee == "java") "2.2.3" else "3.1.0"
+val hibernateVersion = if (ee == "java") "5.4.33" else "6.4.1.Final"
+val eclipseLinkVersion = if (ee == "java") "2.7.13" else "3.0.4"
 //测试使用的 jpa 引擎，默认 hibernate
 val jpa = project.findProperty("jpaImpl") ?: "hibernate"
 
@@ -49,7 +58,7 @@ dependencies {
     }
     compileAndTest("org.apache.httpcomponents.client5:httpclient5:5.3")
     compileAndTest("org.apache.httpcomponents:httpclient:4.5.14")
-    compileOnly("javax.persistence:javax.persistence-api:2.2")
+    compileOnly("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
     compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
     compileOnly("org.slf4j:slf4j-api:2.0.9")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -57,16 +66,19 @@ dependencies {
     testImplementation("org.springframework:spring-test:$springFrameworkVersion")
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
 //
-    testCompileOnly("org.hibernate:hibernate-core:5.4.33")
-    testCompileOnly("org.eclipse.persistence:eclipselink:2.7.13")
+    testCompileOnly("org.hibernate:hibernate-core:$hibernateVersion")
+    testCompileOnly("org.eclipse.persistence:eclipselink:$eclipseLinkVersion")
     if (jpa == "hibernate") {
-        testImplementation("org.hibernate:hibernate-core:5.4.33")
+        testImplementation("org.hibernate:hibernate-core:$hibernateVersion")
     } else {
-        testImplementation("org.eclipse.persistence:eclipselink:2.7.13")
+        testImplementation("org.eclipse.persistence:eclipselink:$eclipseLinkVersion")
+        testImplementation("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
     }
 
     testImplementation("org.apache.commons:commons-lang3:3.8.1")
     testImplementation("org.assertj:assertj-core:3.11.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("com.h2database:h2:2.2.224")
 }
 
@@ -74,11 +86,19 @@ tasks.test {
     useJUnitPlatform()
 }
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(jdkVersion)
 }
+
+val copyEE = tasks.create("copyEE") {
+    val codeBase = "$rootDir/src/main/kotlin"
+    val targetFile = Paths.get("$codeBase/io/github/caijiang/common/EEType.kt")
+    Files.deleteIfExists(targetFile)
+    Files.copy(Paths.get("$codeBase/io/github/caijiang/common/EEType.kt-$ee"), targetFile)
+}
+
 tasks.compileKotlin {
     compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
-//    dependsOn(processResources)
+    dependsOn(copyEE)
 }
 
 // publish
@@ -116,9 +136,9 @@ extensions.configure<PublishingExtension> {
         publications {
             create<MavenPublication>("maven") {
                 pom {
-                    name = "common ext"
+                    name = "common ext(build for $ee ee)"
                     description =
-                        "this is a common extensions written in kotlin, work for jvm(8+). it almost has nothing depends in runtime, user should declare it by themself."
+                        "this is a common extensions written in kotlin, work for jvm($jdkVersion+). it almost has nothing depends in runtime, user should declare it by themself."
                     packaging = "jar"
                     url = "https://github.com/caijiang/common-ext"
                     licenses {
@@ -144,7 +164,7 @@ extensions.configure<PublishingExtension> {
                 from(components["java"])
 //                version = fetchRealVersion()
                 groupId = project.group.toString()
-                artifactId = project.name
+                artifactId = project.name + "-" + ee
 //                    println("read information from project ${artifactId}:${version} in group: $groupId")
 
                 if (project.findProperty("withDocument") != null) {

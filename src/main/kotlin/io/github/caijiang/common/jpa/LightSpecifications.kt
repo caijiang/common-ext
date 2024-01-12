@@ -1,7 +1,8 @@
 package io.github.caijiang.common.jpa
 
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.Predicate
+import io.github.caijiang.common.CriteriaBuilder
+import io.github.caijiang.common.Predicate
+
 
 /**
  * @author CJ
@@ -40,7 +41,7 @@ internal object LightSpecifications {
     internal enum class CompositionType {
         AND {
 
-            override fun combine(builder: CriteriaBuilder, lhs: Predicate?, rhs: Predicate?): Predicate? {
+            override fun combine(builder: CriteriaBuilder, lhs: Predicate?, rhs: Predicate?): Predicate {
                 return builder.and(lhs, rhs)
             }
         },

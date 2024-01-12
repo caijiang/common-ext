@@ -1,0 +1,28 @@
+package io.github.caijiang.common
+
+
+typealias CriteriaBuilder = javax.persistence.criteria.CriteriaBuilder
+typealias From<A, S> = javax.persistence.criteria.From<A, S>
+typealias JoinType = javax.persistence.criteria.JoinType
+typealias Join<A, S> = javax.persistence.criteria.Join<A, S>
+typealias SetJoin<A, S> = javax.persistence.criteria.SetJoin<A, S>
+typealias CollectionJoin<A, S> = javax.persistence.criteria.CollectionJoin<A, S>
+typealias ListJoin<A, S> = javax.persistence.criteria.ListJoin<A, S>
+typealias MapJoin<A, S, D> = javax.persistence.criteria.MapJoin<A, S, D>
+typealias Path<A> = javax.persistence.criteria.Path<A>
+typealias Predicate = javax.persistence.criteria.Predicate
+typealias EntityManager = javax.persistence.EntityManager
+typealias EntityManagerFactory = javax.persistence.EntityManagerFactory
+typealias Tuple = javax.persistence.Tuple
+typealias TypedQuery<A> = javax.persistence.TypedQuery<A>
+typealias CriteriaQuery<A> = javax.persistence.criteria.CriteriaQuery<A>
+typealias Root<A> = javax.persistence.criteria.Root<A>
+typealias MappedSuperclass = javax.persistence.MappedSuperclass
+typealias Entity = javax.persistence.Entity
+typealias Id = javax.persistence.Id
+typealias GeneratedValue = javax.persistence.GeneratedValue
+typealias GenerationType = javax.persistence.GenerationType
+typealias Column = javax.persistence.Column
+typealias ManyToOne = javax.persistence.ManyToOne
+typealias ElementCollection = javax.persistence.ElementCollection
+typealias ManyToMany = javax.persistence.ManyToMany

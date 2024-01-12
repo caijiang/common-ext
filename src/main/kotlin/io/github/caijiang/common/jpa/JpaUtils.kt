@@ -1,11 +1,7 @@
 package io.github.caijiang.common.jpa
 
-import javax.persistence.EntityManager
-import javax.persistence.Tuple
-import javax.persistence.TypedQuery
-import javax.persistence.criteria.CriteriaBuilder
-import javax.persistence.criteria.CriteriaQuery
-import javax.persistence.criteria.Root
+import io.github.caijiang.common.*
+
 
 /**
  * 同时面向 java 和 kotlin

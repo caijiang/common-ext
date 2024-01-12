@@ -1,8 +1,8 @@
 package io.github.caijiang.common.jpa.demo.entity
 
+import io.github.caijiang.common.MappedSuperclass
 import java.time.LocalDate
 import java.time.LocalDateTime
-import javax.persistence.MappedSuperclass
 
 /**
  * @author CJ

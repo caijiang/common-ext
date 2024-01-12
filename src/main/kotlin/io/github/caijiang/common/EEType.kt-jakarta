@@ -1,0 +1,28 @@
+package io.github.caijiang.common
+
+
+typealias CriteriaBuilder = jakarta.persistence.criteria.CriteriaBuilder
+typealias From<A, S> = jakarta.persistence.criteria.From<A, S>
+typealias JoinType = jakarta.persistence.criteria.JoinType
+typealias Join<A, S> = jakarta.persistence.criteria.Join<A, S>
+typealias SetJoin<A, S> = jakarta.persistence.criteria.SetJoin<A, S>
+typealias CollectionJoin<A, S> = jakarta.persistence.criteria.CollectionJoin<A, S>
+typealias ListJoin<A, S> = jakarta.persistence.criteria.ListJoin<A, S>
+typealias MapJoin<A, S, D> = jakarta.persistence.criteria.MapJoin<A, S, D>
+typealias Path<A> = jakarta.persistence.criteria.Path<A>
+typealias Predicate = jakarta.persistence.criteria.Predicate
+typealias EntityManager = jakarta.persistence.EntityManager
+typealias EntityManagerFactory = jakarta.persistence.EntityManagerFactory
+typealias Tuple = jakarta.persistence.Tuple
+typealias TypedQuery<A> = jakarta.persistence.TypedQuery<A>
+typealias CriteriaQuery<A> = jakarta.persistence.criteria.CriteriaQuery<A>
+typealias Root<A> = jakarta.persistence.criteria.Root<A>
+typealias MappedSuperclass = jakarta.persistence.MappedSuperclass
+typealias Entity = jakarta.persistence.Entity
+typealias Id = jakarta.persistence.Id
+typealias GeneratedValue = jakarta.persistence.GeneratedValue
+typealias GenerationType = jakarta.persistence.GenerationType
+typealias Column = jakarta.persistence.Column
+typealias ManyToOne = jakarta.persistence.ManyToOne
+typealias ElementCollection = jakarta.persistence.ElementCollection
+typealias ManyToMany = jakarta.persistence.ManyToMany

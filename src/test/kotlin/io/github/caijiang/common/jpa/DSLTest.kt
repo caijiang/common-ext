@@ -1,5 +1,7 @@
 package io.github.caijiang.common.jpa
 
+import io.github.caijiang.common.EntityManagerFactory
+import io.github.caijiang.common.JoinType
 import io.github.caijiang.common.jpa.demo.JpaConfig
 import io.github.caijiang.common.jpa.demo.entity.Animal
 import io.github.caijiang.common.jpa.demo.entity.Department
@@ -12,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
 import java.time.LocalDateTime
-import javax.persistence.EntityManagerFactory
-import javax.persistence.criteria.JoinType
 import kotlin.test.Test
 
 /**

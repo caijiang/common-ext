@@ -1,25 +1,22 @@
 package io.github.caijiang.common.jpa
 
-import javax.persistence.criteria.*
+import io.github.caijiang.common.*
 import kotlin.reflect.KProperty1
 
 //https://github.com/consoleau/kotlin-jpa-LightSpecification-dsl
 
 //<editor-fold desc="Helper to allow joining to Properties">
 /**
- * @see From.join
  */
 fun <Z, T, R> From<Z, T>.join(prop: KProperty1<T, R?>, type: JoinType = JoinType.INNER): Join<T, R> =
     this.join(prop.name, type)
 
 /**
- * @see From.joinSet
  */
 fun <Z, T, R> From<Z, T>.joinSet(prop: KProperty1<T, Set<R>?>, type: JoinType = JoinType.INNER): SetJoin<T, R> =
     this.joinSet(prop.name, type)
 
 /**
- * @see From.joinCollection
  */
 fun <Z, T, R> From<Z, T>.joinCollection(
     prop: KProperty1<T, Collection<R>?>,
@@ -28,7 +25,6 @@ fun <Z, T, R> From<Z, T>.joinCollection(
     this.joinCollection(prop.name, type)
 
 /**
- * @see From.joinList
  */
 fun <Z, T, R> From<Z, T>.joinList(
     prop: KProperty1<T, List<R>?>,
@@ -37,7 +33,6 @@ fun <Z, T, R> From<Z, T>.joinList(
     this.joinList(prop.name, type)
 
 /**
- * @see From.joinMap
  */
 fun <Z, T, R, V> From<Z, T>.joinMap(
     prop: KProperty1<T, Map<R, V>?>,

@@ -1,5 +1,6 @@
 package io.github.caijiang.common.jpa
 
+import io.github.caijiang.common.JoinType
 import io.github.caijiang.common.jpa.demo.JpaConfig
 import io.github.caijiang.common.jpa.demo.entity.Department
 import io.github.caijiang.common.jpa.demo.entity.People
@@ -10,7 +11,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig
-import javax.persistence.criteria.JoinType
 import kotlin.math.max
 import kotlin.test.Test
 

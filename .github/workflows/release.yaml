@@ -21,6 +21,7 @@ jobs:
     strategy:
       matrix:
         java-version: [ 8 ]
+        ee-version: [ java,jakarta ]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -43,6 +44,7 @@ jobs:
           tagRegex: "v(?<version>.*)"
       - name: Build
         env:
+          ORG_GRADLE_PROJECT_ee: ${{ matrix.ee-version }}
           version: ${{ steps.tagName.outputs.version }}
           secretKeyRingFileBase64: ${{ secrets.secretKeyRingFileBase64 }}
           mavenUsername: ${{ secrets.MAVEN_USERNAME }}
