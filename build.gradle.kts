@@ -66,6 +66,7 @@ dependencies {
     testImplementation("org.springframework:spring-test:$springFrameworkVersion")
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
 //
+    compileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.eclipse.persistence:eclipselink:$eclipseLinkVersion")
     if (jpa == "hibernate") {

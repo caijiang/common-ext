@@ -1,8 +1,8 @@
 package io.github.caijiang.common.jpa.demo.entity
 
 import io.github.caijiang.common.*
-import io.github.caijiang.common.jpa.demo.jpaEntityEffectiveClass
-import io.github.caijiang.common.jpa.demo.jpaHashCode
+import io.github.caijiang.common.jpa.jpaEntityEffectiveClass
+import io.github.caijiang.common.jpa.jpaEntityHashCode
 
 /**
  * @author CJ
@@ -36,5 +36,5 @@ data class Department(
         return id != null && id == other.id
     }
 
-    override fun hashCode(): Int = jpaHashCode()
+    override fun hashCode(): Int = jpaEntityHashCode()
 }
