@@ -26,3 +26,4 @@ typealias Column = jakarta.persistence.Column
 typealias ManyToOne = jakarta.persistence.ManyToOne
 typealias ElementCollection = jakarta.persistence.ElementCollection
 typealias ManyToMany = jakarta.persistence.ManyToMany
+typealias AttributeConverter<A,B> = jakarta.persistence.AttributeConverter<A,B>

@@ -44,11 +44,12 @@ val jdkVersion = if (ee == "java") 8 else 17
 val junitVersion = if (ee == "java") "5.6.3" else "5.10.1"
 val springDataVersion = if (ee == "java") "2.5.12" else "3.2.1"
 val springFrameworkVersion = if (ee == "java") "5.3.19" else "6.1.2"
+val springBootVersion = if (ee == "java") "2.1.6.RELEASE" else "3.2.1"
 val persistenceVersion = if (ee == "java") "2.2.3" else "3.1.0"
 val hibernateVersion = if (ee == "java") "5.4.33" else "6.4.1.Final"
 val eclipseLinkVersion = if (ee == "java") "2.7.13" else "3.0.4"
 //测试使用的 jpa 引擎，默认 hibernate
-val jpa = project.findProperty("jpaImpl") ?: "hibernate"
+val jpa = project.findProperty("jpaImpl") ?: "hibernate" // eclipselink
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -62,7 +63,7 @@ dependencies {
     compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
     compileOnly("org.slf4j:slf4j-api:2.0.9")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.slf4j:slf4j-simple:2.0.9")
+//    testImplementation("org.slf4j:slf4j-simple:2.0.9")
     testImplementation("org.springframework:spring-test:$springFrameworkVersion")
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
 //
@@ -76,6 +77,11 @@ dependencies {
         testImplementation("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
     }
 
+    compileAndTest("org.springframework:spring-webmvc:$springFrameworkVersion")
+    compileOnly("org.springframework.boot:spring-boot:$springBootVersion")
+    compileAndTest("org.springframework.boot:spring-boot-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     testImplementation("org.apache.commons:commons-lang3:3.8.1")
     testImplementation("org.assertj:assertj-core:3.11.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")

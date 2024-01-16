@@ -26,3 +26,4 @@ typealias Column = javax.persistence.Column
 typealias ManyToOne = javax.persistence.ManyToOne
 typealias ElementCollection = javax.persistence.ElementCollection
 typealias ManyToMany = javax.persistence.ManyToMany
+typealias AttributeConverter<A,B> = javax.persistence.AttributeConverter<A,B>
