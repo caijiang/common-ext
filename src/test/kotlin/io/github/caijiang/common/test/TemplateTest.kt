@@ -7,6 +7,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpMethod
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.exchange
+import org.springframework.web.client.getForObject
 import kotlin.test.Test
 
 /**
@@ -39,6 +40,12 @@ class TemplateTest : AbstractSpringTest() {
         assertThat(r2.body)
             .isEqualTo("foo+bar")
 
+        assertThat(template.getForObject<String?>("/readCookie"))
+            .isNull()
+
+        template.getForObject<String>("/setCookie")
+        assertThat(template.getForObject<String>("/readCookie"))
+            .isEqualTo("foo")
     }
 
 }
