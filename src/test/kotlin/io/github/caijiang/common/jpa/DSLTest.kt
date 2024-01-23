@@ -29,6 +29,19 @@ class DSLTest {
     private lateinit var entityManagerFactory: EntityManagerFactory
 
     @Test
+    fun cache() {
+
+        val name = RandomStringUtils.randomAlphabetic(20)
+        val id = peopleRepository.save(People(name = name, age = 10)).id!!
+
+        peopleRepository.getById(id)
+        val entityManager = entityManagerFactory.createEntityManager()
+        entityManager.removeAllCache()
+        peopleRepository.getById(id)
+
+    }
+
+    @Test
     fun join() {
         println(Department::class.isOpen)
         val entityManager = entityManagerFactory.createEntityManager()

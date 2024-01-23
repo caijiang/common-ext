@@ -14,3 +14,10 @@ fun <T> EntityManager.createCriteriaQueryWithTuple(
 ): TypedQuery<Tuple> {
     return JpaUtils.createCriteriaQueryWithTuple(this, type, tuple, spec)
 }
+
+/**
+ * 清理所有缓存
+ */
+fun EntityManager.removeAllCache() {
+    JpaUtils.removeAllCache(this)
+}

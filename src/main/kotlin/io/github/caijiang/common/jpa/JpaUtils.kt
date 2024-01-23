@@ -1,6 +1,7 @@
 package io.github.caijiang.common.jpa
 
 import io.github.caijiang.common.*
+import org.springframework.util.ClassUtils
 
 
 /**
@@ -43,6 +44,14 @@ object JpaUtils {
             tuple(cq, root, cb)
                 .where(*predicates)
         )
+    }
+
+    @JvmStatic
+    fun removeAllCache(entityManager: EntityManager) {
+        val cache = entityManager.entityManagerFactory.cache
+        cache.evictAll()
+        if (ClassUtils.isPresent("org.hibernate.Cache", null))
+            (cache as? org.hibernate.Cache)?.evictAllRegions()
     }
 
 }
