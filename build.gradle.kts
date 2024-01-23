@@ -47,6 +47,7 @@ val springFrameworkVersion = if (ee == "java") "5.3.19" else "6.1.2"
 val springBootVersion = if (ee == "java") "2.1.6.RELEASE" else "3.2.1"
 val persistenceVersion = if (ee == "java") "2.2.3" else "3.1.0"
 val hibernateVersion = if (ee == "java") "5.4.33" else "6.4.1.Final"
+val redissonHibernateArtifactId = if (ee == "java") "redisson-hibernate-53" else "redisson-hibernate-6"
 val eclipseLinkVersion = if (ee == "java") "2.7.13" else "3.0.4"
 //测试使用的 jpa 引擎，默认 hibernate
 val jpa = project.findProperty("jpaImpl") ?: "hibernate" // eclipselink
@@ -67,6 +68,8 @@ dependencies {
     testImplementation("org.springframework:spring-test:$springFrameworkVersion")
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
 //
+    compileOnly("org.redisson:$redissonHibernateArtifactId:3.26.0")
+
     compileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.eclipse.persistence:eclipselink:$eclipseLinkVersion")
@@ -96,11 +99,26 @@ kotlin {
     jvmToolchain(jdkVersion)
 }
 
+sourceSets.main {
+    kotlin.srcDirs("src/main/kotlin", "build/main/generatedKotlin")
+}
+
 val copyEE = tasks.create("copyEE") {
     val codeBase = "$rootDir/src/main/kotlin"
-    val targetFile = Paths.get("$codeBase/io/github/caijiang/common/EEType.kt")
-    Files.deleteIfExists(targetFile)
-    Files.copy(Paths.get("$codeBase/io/github/caijiang/common/EEType.kt-$ee"), targetFile)
+    val targetBase = "$rootDir/build/main/generatedKotlin"
+    val fileStore =
+        arrayOf(
+            "io/github/caijiang/common/EEType.kt",
+            "io/github/caijiang/common/hibernate/SpringRedissonRegionFactory.kt"
+        )
+
+    fileStore.forEach {
+        val targetFile = Paths.get("$targetBase/$it")
+        Files.deleteIfExists(targetFile)
+        targetFile.toFile().parentFile.mkdirs()
+        Files.copy(Paths.get("$codeBase/$it-$ee"), targetFile)
+    }
+
 }
 
 tasks.compileKotlin {

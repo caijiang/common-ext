@@ -16,13 +16,12 @@ object UtilUtils {
         return bb.array()
     }
 
+    /**
+     * @see UUID
+     */
     @JvmStatic
     fun createUUIDFrom(bytes: ByteArray): UUID {
-        var msb: Long = 0
-        var lsb: Long = 0
-        assert(bytes.size == 16) { "data must be 16 bytes in length" }
-        for (i in 0..7) msb = (msb shl 8) or (bytes[i].toInt() and 0xff).toLong()
-        for (i in 8..15) lsb = (lsb shl 8) or (bytes[i].toInt() and 0xff).toLong()
-        return UUID(msb, lsb)
+        val x = ByteBuffer.wrap(bytes)
+        return UUID(x.getLong(), x.getLong())
     }
 }

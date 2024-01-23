@@ -1,0 +1,12 @@
+package io.github.caijiang.common.hibernate
+import org.hibernate.boot.registry.StandardServiceRegistry
+import org.redisson.api.RedissonClient
+
+class SpringRedissonRegionFactory:AbstractSpringRedissonRegionFactory(){
+override fun createRedissonClient(
+       registry: StandardServiceRegistry?,
+       properties: MutableMap<Any?, Any?>?
+   ): RedissonClient {
+      return createRedissonClientFromSpring()
+   }
+}
