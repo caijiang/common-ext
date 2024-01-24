@@ -104,6 +104,14 @@ dependencies {
     // mvc
     compileAndTest("org.springframework:spring-webmvc:$springFrameworkVersion")
 
+    // test support
+    compileAndTest("com.wix:wix-embedded-mysql:4.6.2")
+    val inLinux = "Linux".equals(System.getProperty("os.name"), true)
+    if (inLinux) {
+        compileAndTest("com.github.kstyrc:embedded-redis:0.6")
+    } else {
+        compileAndTest("com.github.codemonstur:embedded-redis:1.0.0")
+    }
 }
 
 tasks.test {
