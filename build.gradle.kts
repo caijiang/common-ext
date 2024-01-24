@@ -54,25 +54,36 @@ val eclipseLinkVersion = if (ee == "java") "2.7.13" else "3.0.4"
 val jpa = project.findProperty("jpaImpl") ?: "hibernate" // eclipselink
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
     fun compileAndTest(dependencyNotation: Any) {
         compileOnly(dependencyNotation)
         testImplementation(dependencyNotation)
     }
-    compileAndTest("org.apache.httpcomponents.client5:httpclient5:5.3")
-    compileAndTest("org.apache.httpcomponents:httpclient:4.5.14")
-    compileOnly("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
-    compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
+
+    // all basic
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    compileOnly("org.springframework.boot:spring-boot:$springBootVersion")
     compileOnly("org.slf4j:slf4j-api:2.0.9")
+
+    // test required
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-//    testImplementation("org.slf4j:slf4j-simple:2.0.9")
+    compileAndTest("org.springframework.boot:spring-boot-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
+    testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
+    testImplementation("org.apache.commons:commons-lang3:3.8.1")
+    testImplementation("org.assertj:assertj-core:3.11.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testRuntimeOnly("com.h2database:h2:2.2.224")
     testImplementation("org.springframework:spring-test:$springFrameworkVersion")
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
-//
-    compileOnly("org.redisson:$redissonHibernateArtifactId:3.26.0")
-    compileAndTest("org.springframework.integration:spring-integration-core:$springIntegrationVersion")
-    compileAndTest("org.springframework:spring-aspects:$springFrameworkVersion")
 
+    // http
+    compileAndTest("org.apache.httpcomponents.client5:httpclient5:5.3")
+    compileAndTest("org.apache.httpcomponents:httpclient:4.5.14")
+
+    // jpa
+    compileOnly("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
+    compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
     compileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.eclipse.persistence:eclipselink:$eclipseLinkVersion")
@@ -83,16 +94,16 @@ dependencies {
         testImplementation("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
     }
 
+    // redisson
+    compileOnly("org.redisson:$redissonHibernateArtifactId:3.26.0")
+    compileAndTest("org.springframework.integration:spring-integration-core:$springIntegrationVersion")
+
+    // aop
+    compileAndTest("org.springframework:spring-aspects:$springFrameworkVersion")
+
+    // mvc
     compileAndTest("org.springframework:spring-webmvc:$springFrameworkVersion")
-    compileOnly("org.springframework.boot:spring-boot:$springBootVersion")
-    compileAndTest("org.springframework.boot:spring-boot-test:$springBootVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
-    testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
-    testImplementation("org.apache.commons:commons-lang3:3.8.1")
-    testImplementation("org.assertj:assertj-core:3.11.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntimeOnly("com.h2database:h2:2.2.224")
+
 }
 
 tasks.test {
