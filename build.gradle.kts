@@ -42,6 +42,7 @@ val ee = project.findProperty("ee") ?: "java" // jakarta
 val jdkVersion = if (ee == "java") 8 else 17
 // https://stackoverflow.com/questions/77539033/how-to-avoid-compatibility-issues-between-java-ee-and-jakarta-ee
 val junitVersion = if (ee == "java") "5.6.3" else "5.10.1"
+val springIntegrationVersion = if (ee == "java") "5.1.6.RELEASE" else "6.2.1"
 val springDataVersion = if (ee == "java") "2.5.12" else "3.2.1"
 val springFrameworkVersion = if (ee == "java") "5.3.19" else "6.1.2"
 val springBootVersion = if (ee == "java") "2.1.6.RELEASE" else "3.2.1"
@@ -69,6 +70,8 @@ dependencies {
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
 //
     compileOnly("org.redisson:$redissonHibernateArtifactId:3.26.0")
+    compileAndTest("org.springframework.integration:spring-integration-core:$springIntegrationVersion")
+    compileAndTest("org.springframework:spring-aspects:$springFrameworkVersion")
 
     compileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.hibernate:hibernate-core:$hibernateVersion")
