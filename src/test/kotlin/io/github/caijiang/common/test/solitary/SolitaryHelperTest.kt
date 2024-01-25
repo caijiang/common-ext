@@ -2,10 +2,10 @@ package io.github.caijiang.common.test.solitary
 
 import com.wix.mysql.Sources
 import com.wix.mysql.distribution.Version
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Test
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import org.springframework.core.io.ClassPathResource
+import kotlin.test.Test
 
 
 /**
@@ -14,21 +14,42 @@ import org.springframework.core.io.ClassPathResource
 class SolitaryHelperTest {
 
     @Test
+    fun env() {
+        assertThat(SolitaryHelper.runInAliyunFlow {
+            null
+        }).isNull()
+
+        assertThat(SolitaryHelper.runInAliyunFlow {
+            if (it == "CI_RUNTIME_VERSION") "11"
+            else null
+        }).isNull()
+
+        assertThat(SolitaryHelper.runInAliyunFlow {
+            if (it == "CI_RUNTIME_VERSION") "11"
+            else if (it == "caches") "[\"/root/.m2\",\"/root/.gradle/caches\",\"/root/.npm\",\"/root/.yarn\",\"/go/pkg/mod\",\"/root/.cache\"]"
+            else null
+        }).isNotNull
+            .last()
+            .isEqualTo("/root/.cache")
+
+    }
+
+    @Test
     fun redis() {
         SolitaryHelper.createRedis(null)
             .stop()
 
-        Assertions.assertThat(System.getProperty("redis.port"))
+        assertThat(System.getProperty("redis.port"))
             .isNotEmpty()
-        Assertions.assertThat(System.getProperty("redis.password"))
+        assertThat(System.getProperty("redis.password"))
             .isNotEmpty()
 
         SolitaryHelper.createRedis("abc")
             .stop()
 
-        Assertions.assertThat(System.getProperty("redis.port"))
+        assertThat(System.getProperty("redis.port"))
             .isNotEmpty()
-        Assertions.assertThat(System.getProperty("redis.password"))
+        assertThat(System.getProperty("redis.password"))
             .isNotEmpty()
             .isEqualTo("abc")
     }
@@ -51,13 +72,13 @@ class SolitaryHelperTest {
         )
             .stop()
 
-        Assertions.assertThat(System.getProperty("mysql.port"))
+        assertThat(System.getProperty("mysql.port"))
             .isNotEmpty()
-        Assertions.assertThat(System.getProperty("mysql.database"))
+        assertThat(System.getProperty("mysql.database"))
             .isNotEmpty()
-        Assertions.assertThat(System.getProperty("mysql.username"))
+        assertThat(System.getProperty("mysql.username"))
             .isNotEmpty()
-        Assertions.assertThat(System.getProperty("mysql.password"))
+        assertThat(System.getProperty("mysql.password"))
             .isNotEmpty()
     }
 }

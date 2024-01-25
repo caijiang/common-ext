@@ -1,5 +1,6 @@
 package io.github.caijiang.common.test.solitary
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.wix.mysql.EmbeddedMysql
 import com.wix.mysql.Sources
 import com.wix.mysql.SqlScriptSource
@@ -181,15 +182,25 @@ object SolitaryHelper {
                     database, *initScripts
                 )
 
-            // 如果在 ci 环境 那就用ci 目录，因为设置良好的ci 目录具备缓存功能，反之则使用默认的用户目录
-            val dir = System.getenv("CI_PROJECT_DIR")
-            if (StringUtils.hasLength(dir)) {
+            val aliFlowCaches = runInAliyunFlow()
+            if (!aliFlowCaches.isNullOrEmpty()) {
                 builder = builder
                     .withDownloadConfig(
                         DownloadConfig.aDownloadConfig()
-                            .withCacheDir("$dir/mysql")
+                            .withCacheDir("${aliFlowCaches.last()}/mysql")
                             .build()
                     )
+            } else {
+                // 如果在 ci 环境 那就用ci 目录，因为设置良好的ci 目录具备缓存功能，反之则使用默认的用户目录
+                val dir = System.getenv("CI_PROJECT_DIR")
+                if (StringUtils.hasLength(dir)) {
+                    builder = builder
+                        .withDownloadConfig(
+                            DownloadConfig.aDownloadConfig()
+                                .withCacheDir("$dir/mysql")
+                                .build()
+                        )
+                }
             }
 
             val instance = builder
@@ -215,6 +226,26 @@ object SolitaryHelper {
             log.error("启动内置mysql 实例", e)
             throw RuntimeException(e)
         }
+    }
+
+    internal fun runInAliyunFlow(
+        toEnv: (String) -> String?
+        = { t -> System.getenv(t) }
+    ): List<String>? {
+        if (toEnv("CI_RUNTIME_VERSION") == null) {
+            return null
+        }
+        //            CI_RUNTIME_VERSION=jdk17 这个似乎是 aliyun flow 的特殊标志
+        //            caches=["/root/.m2","/root/.gradle/caches","/root/.npm","/root/.yarn","/go/pkg/mod","/root/.cache"]
+        val caches = toEnv("caches")
+        if (!StringUtils.hasText(caches)) {
+            return null
+        }
+        return ObjectMapper().readTree(caches)
+            .mapNotNull {
+                if (it.isTextual) it.textValue()
+                else null
+            }
     }
 
     private fun freePort(): Int {
