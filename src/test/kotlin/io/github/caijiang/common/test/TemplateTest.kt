@@ -7,6 +7,7 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpMethod
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.client.exchange
+import org.springframework.web.client.getForEntity
 import org.springframework.web.client.getForObject
 import kotlin.test.Test
 
@@ -16,6 +17,24 @@ import kotlin.test.Test
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [MvcDemoApp::class])
 @ActiveProfiles("test")
 class TemplateTest : AbstractSpringTest() {
+
+    @Test
+    fun assertion() {
+        val template = createTestTemplate()
+
+        assertThat(template, "/echoUrlEncoded?p1=1&p2=2")
+            .isLegalResponse()
+            .isSuccessResponse()
+
+        assertThat(template.getForEntity("/echoUrlEncoded?p1=1&p2=2"))
+            .isLegalResponse()
+
+        assertThat(template, "/echoUrlEncoded22?p1=1&p2=2")
+            .isFailedResponse()
+            .isErrorCodeMatch("404")
+
+    }
+
     @Test
     fun well() {
         val template = createTestTemplate()

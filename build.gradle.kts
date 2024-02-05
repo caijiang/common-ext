@@ -42,12 +42,14 @@ val ee = project.findProperty("ee") ?: "java" // jakarta
 val jdkVersion = if (ee == "java") 8 else 17
 // https://stackoverflow.com/questions/77539033/how-to-avoid-compatibility-issues-between-java-ee-and-jakarta-ee
 val junitVersion = if (ee == "java") "5.6.3" else "5.10.1"
-val springIntegrationVersion = if (ee == "java") "5.1.6.RELEASE" else "6.2.1"
-val springDataVersion = if (ee == "java") "2.5.12" else "3.2.1"
-val springFrameworkVersion = if (ee == "java") "5.3.19" else "6.1.2"
-val springBootVersion = if (ee == "java") "2.1.6.RELEASE" else "3.2.1"
+val springIntegrationVersion = if (ee == "java") "5.5.20" else "6.2.1"
+val springDataVersion = if (ee == "java") "2.7.18" else "3.2.1"
+val springDataRestVersion = if (ee == "java") "3.7.18" else "4.2.1"
+val springFrameworkVersion = if (ee == "java") "5.3.31" else "6.1.2"
+//val springFrameworkVersion = if (ee == "java") "5.1.8.RELEASE" else "6.1.2"
+val springBootVersion = if (ee == "java") "2.7.18" else "3.2.1"
 val persistenceVersion = if (ee == "java") "2.2.3" else "3.1.0"
-val hibernateVersion = if (ee == "java") "5.4.33" else "6.4.1.Final"
+val hibernateVersion = if (ee == "java") "5.6.15.Final" else "6.4.1.Final"
 val redissonHibernateArtifactId = if (ee == "java") "redisson-hibernate-53" else "redisson-hibernate-6"
 val eclipseLinkVersion = if (ee == "java") "2.7.13" else "3.0.4"
 //测试使用的 jpa 引擎，默认 hibernate
@@ -70,7 +72,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:$springBootVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-web:$springBootVersion")
     testImplementation("org.apache.commons:commons-lang3:3.8.1")
-    testImplementation("org.assertj:assertj-core:3.11.1")
+    compileAndTest("org.assertj:assertj-core:3.11.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testRuntimeOnly("com.h2database:h2:2.2.224")
@@ -84,6 +86,7 @@ dependencies {
     // jpa
     compileOnly("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
     compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
+    compileAndTest("org.springframework.data:spring-data-rest-webmvc:$springDataRestVersion")
     compileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.hibernate:hibernate-core:$hibernateVersion")
     testCompileOnly("org.eclipse.persistence:eclipselink:$eclipseLinkVersion")
@@ -126,19 +129,21 @@ sourceSets.main {
 }
 
 val copyEE = tasks.create("copyEE") {
-    val codeBase = "$rootDir/src/main/kotlin"
-    val targetBase = "$rootDir/build/main/generatedKotlin"
-    val fileStore =
-        arrayOf(
-            "io/github/caijiang/common/EEType.kt",
-            "io/github/caijiang/common/hibernate/SpringRedissonRegionFactory.kt"
-        )
+    doLast {
+        val codeBase = "$rootDir/src/main/kotlin"
+        val targetBase = "$rootDir/build/main/generatedKotlin"
+        val fileStore =
+            arrayOf(
+                "io/github/caijiang/common/EEType.kt",
+                "io/github/caijiang/common/hibernate/SpringRedissonRegionFactory.kt"
+            )
 
-    fileStore.forEach {
-        val targetFile = Paths.get("$targetBase/$it")
-        Files.deleteIfExists(targetFile)
-        targetFile.toFile().parentFile.mkdirs()
-        Files.copy(Paths.get("$codeBase/$it-$ee"), targetFile)
+        fileStore.forEach {
+            val targetFile = Paths.get("$targetBase/$it")
+            Files.deleteIfExists(targetFile)
+            targetFile.toFile().parentFile.mkdirs()
+            Files.copy(Paths.get("$codeBase/$it-$ee"), targetFile)
+        }
     }
 
 }
