@@ -2,9 +2,12 @@ package io.github.caijiang.common.test.solitary
 
 import com.wix.mysql.Sources
 import com.wix.mysql.distribution.Version
+import io.github.caijiang.common.jdbc.mysqlCollate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import org.springframework.core.io.ClassPathResource
+import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.jdbc.datasource.DriverManagerDataSource
 import kotlin.test.Test
 
 
@@ -63,13 +66,25 @@ class SolitaryHelperTest {
         SolitaryHelper.createMysql(Version.v5_7_latest, null)
             .stop()
 
-        SolitaryHelper.createMysql(Version.v5_7_latest, { it -> it.withPort(5050) })
+        SolitaryHelper.createMysql(Version.v5_7_latest, { it.withPort(5050) })
             .stop()
 
         SolitaryHelper.createMysql(
-            Version.v5_7_latest, { it -> it.withPort(5050) },
+            Version.v5_7_latest, { it.withPort(5050) },
             Sources.fromURL(ClassPathResource("/t1.sql").url)
         )
+            .apply {
+                // 顺便测试 mysqlCollate
+                JdbcTemplate(
+                    DriverManagerDataSource(
+                        "jdbc:mysql://localhost:5050/${System.getProperty("mysql.database")}",
+                        System.getProperty("mysql.username"),
+                        System.getProperty("mysql.password")
+                    ).apply {
+                        setDriverClassName("com.mysql.jdbc.Driver")
+                    }
+                ).mysqlCollate("utf8mb4_unicode_ci", mapOf("t1" to setOf("v1")))
+            }
             .stop()
 
         assertThat(System.getProperty("mysql.port"))
