@@ -1,6 +1,7 @@
 package io.github.caijiang.common.test
 
 import io.github.caijiang.common.test.jpa_rest_demo.JpaRestDemoApp
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.condition.DisabledIf
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpEntity
@@ -28,6 +29,9 @@ class JpaRestTest : AbstractSpringTest() {
         val template = createTestTemplate()
 
 //        println(template.getForObject<String>("/"))
+        assertThat(template, "/departments")
+            .asSpringRestCollection()
+            .total(0)
 
         assertThat(
             template, "/departments", HttpMethod.POST, HttpEntity(
@@ -38,10 +42,22 @@ class JpaRestTest : AbstractSpringTest() {
             )
         ).isSuccessResponse()
 
-        assertThat(template, "/departments")
+        val d1href = assertThat(template, "/departments")
             .asSpringRestCollection()
             .print()
+            .total(1)
             .asEmbeddedList()
             .hasSize(1)
+            .first()
+            .readSelfLink()
+
+        assertThat(d1href)
+            .isNotNull()
+
+        assertThat(
+            assertThat(template, "/int0")
+                .readData<Int>()
+        )
+            .isEqualTo(0)
     }
 }

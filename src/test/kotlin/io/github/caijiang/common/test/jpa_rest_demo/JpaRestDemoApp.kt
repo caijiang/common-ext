@@ -10,9 +10,7 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer
 /**
  * @author CJ
  */
-@SpringBootApplication(
-//    scanBasePackages = ["io.github.caijiang.common.jpa.demo.repository", "io.github.caijiang.common.jpa.demo.entity"]
-)
+@SpringBootApplication
 @EnableJpaRepositories("io.github.caijiang.common.jpa.demo.repository")
 @EntityScan("io.github.caijiang.common.jpa.demo.entity")
 open class JpaRestDemoApp {

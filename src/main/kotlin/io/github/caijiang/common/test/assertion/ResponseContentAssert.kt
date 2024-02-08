@@ -1,5 +1,6 @@
 package io.github.caijiang.common.test.assertion
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollection
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollectionAssert
@@ -19,6 +20,7 @@ class ResponseContentAssert(
     actual, ResponseContentAssert::class.java
 ) {
     private val log = LoggerFactory.getLogger(ResponseContentAssert::class.java)
+    private val objectMapper = ObjectMapper()
 
 
     private var businessResult: BusinessResult? = null
@@ -85,6 +87,25 @@ class ResponseContentAssert(
             )
         }
         return RestResourceCollectionAssert(null)
+    }
+
+    /**
+     * 返回数据结果
+     *
+     * @return 返回数据结果
+     * @author Guomw 2023/6/16 17:29
+     */
+    fun <T> readData(javaClass: Class<T>): T? {
+        isSuccessResponse()
+        if (businessResult != null) {
+            val reader = objectMapper.readerFor(javaClass)
+            return reader.readValue(businessResult!!.body)
+        }
+        return null
+    }
+
+    inline fun <reified T> readData(): T? {
+        return readData(T::class.java)
     }
 
     private fun readAsJson() {

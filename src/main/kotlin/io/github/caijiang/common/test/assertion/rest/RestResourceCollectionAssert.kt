@@ -1,6 +1,7 @@
 package io.github.caijiang.common.test.assertion.rest
 
 import org.assertj.core.api.AbstractObjectAssert
+import org.assertj.core.internal.Objects
 import org.slf4j.LoggerFactory
 
 /**
@@ -30,6 +31,14 @@ class RestResourceCollectionAssert(actual: RestResourceCollection?) :
         } catch (ignored: Exception) {
             return RestResourceListAssert(null)
         }
+    }
+
+    /**
+     * 断言 total 具体是多少
+     */
+    fun total(total: Int): RestResourceCollectionAssert {
+        Objects.instance().assertEqual(info, actual?.page?.get("totalElements")?.numberValue()?.toInt(), total)
+        return this
     }
 
 }
