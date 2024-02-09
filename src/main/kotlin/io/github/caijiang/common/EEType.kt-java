@@ -29,3 +29,7 @@ typealias ManyToMany = javax.persistence.ManyToMany
 typealias AttributeConverter<A,B> = javax.persistence.AttributeConverter<A,B>
 
 typealias PostConstruct = javax.annotation.PostConstruct
+
+typealias Embeddable = javax.persistence.Embeddable
+typealias EmbeddedId = javax.persistence.EmbeddedId
+typealias MapsId = javax.persistence.MapsId

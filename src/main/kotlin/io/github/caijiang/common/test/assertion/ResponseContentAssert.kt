@@ -75,6 +75,17 @@ class ResponseContentAssert(
         return this
     }
 
+    fun print(): ResponseContentAssert {
+        isLegalResponse()
+        businessResult?.let {
+            println("success:${it.success}")
+            println("body:${it.body}")
+            println("errorCode:${it.errorCode}")
+            println("errorMessage:${it.errorMessage}")
+        }
+        return this
+    }
+
     fun asSpringRestCollection(): RestResourceCollectionAssert {
         isSuccessResponse()
         if (businessResult != null) {
@@ -106,6 +117,16 @@ class ResponseContentAssert(
 
     inline fun <reified T> readData(): T? {
         return readData(T::class.java)
+    }
+
+    fun <T> readFromData(reader: (BusinessResult) -> T?): T? {
+        isSuccessResponse()
+        if (businessResult == null) return null
+        return reader(businessResult!!)
+    }
+
+    fun <T> readFromEntity(reader: (ResponseEntity<String>) -> T): T {
+        return reader(actual)
     }
 
     private fun readAsJson() {
