@@ -26,7 +26,9 @@ data class People(
     @ManyToMany
     val friends: MutableList<People> = Collections.emptyList(),
     @ElementCollection
-    val attributes: MutableMap<String, String> = Collections.emptyMap()
+    val attributes: MutableMap<String, String> = Collections.emptyMap(),
+    @ManyToOne
+    val belongDepartment: Department? = null,
 ) : Animal() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

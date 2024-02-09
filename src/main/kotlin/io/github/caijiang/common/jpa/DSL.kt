@@ -8,17 +8,17 @@ import kotlin.reflect.KProperty1
 //<editor-fold desc="Helper to allow joining to Properties">
 /**
  */
-fun <Z, T, R> From<Z, T>.join(prop: KProperty1<T, R?>, type: JoinType = JoinType.INNER): Join<T, R> =
+fun <Z, T, R> From<Z, out T>.joinOne(prop: KProperty1<T, R?>, type: JoinType = JoinType.INNER): Join<T, R> =
     this.join(prop.name, type)
 
 /**
  */
-fun <Z, T, R> From<Z, T>.joinSet(prop: KProperty1<T, Set<R>?>, type: JoinType = JoinType.INNER): SetJoin<T, R> =
+fun <Z, T, R> From<Z, out T>.joinSet(prop: KProperty1<T, Set<R>?>, type: JoinType = JoinType.INNER): SetJoin<T, R> =
     this.joinSet(prop.name, type)
 
 /**
  */
-fun <Z, T, R> From<Z, T>.joinCollection(
+fun <Z, T, R> From<Z, out T>.joinCollection(
     prop: KProperty1<T, Collection<R>?>,
     type: JoinType = JoinType.INNER
 ): CollectionJoin<T, R> =
@@ -26,7 +26,7 @@ fun <Z, T, R> From<Z, T>.joinCollection(
 
 /**
  */
-fun <Z, T, R> From<Z, T>.joinList(
+fun <Z, T, R> From<Z, out T>.joinList(
     prop: KProperty1<T, List<R>?>,
     type: JoinType = JoinType.INNER
 ): ListJoin<T, R> =
@@ -34,7 +34,7 @@ fun <Z, T, R> From<Z, T>.joinList(
 
 /**
  */
-fun <Z, T, R, V> From<Z, T>.joinMap(
+fun <Z, T, R, V> From<Z, out T>.joinMap(
     prop: KProperty1<T, Map<R, V>?>,
     type: JoinType = JoinType.INNER
 ): MapJoin<T, R, V> =

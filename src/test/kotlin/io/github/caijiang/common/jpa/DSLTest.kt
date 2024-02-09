@@ -63,10 +63,17 @@ class DSLTest {
                 root.joinList(People::friends, JoinType.LEFT),
                 joinMap.key(),
                 joinMap.value(),
-                root.join(People::favorites)
+                root.joinSet(People::favorites)
             )
         })
             .resultList
+
+        entityManager.createCriteriaQueryWithTuple(People::class.java, { root, _ ->
+            multiselect(
+                root.joinOne(People::belongDepartment).get(Department::name)
+            )
+        }).resultList
+
     }
 
     @Test
