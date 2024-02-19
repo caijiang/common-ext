@@ -8,7 +8,7 @@ import kotlin.reflect.KProperty1
 //<editor-fold desc="Helper to allow joining to Properties">
 /**
  */
-fun <Z, T, R> From<Z, out T>.joinOne(prop: KProperty1<T, R?>, type: JoinType = JoinType.INNER): Join<T, R> =
+fun <Z, T, R> From<Z, out T>.joinSingle(prop: KProperty1<T, R?>, type: JoinType = JoinType.INNER): Join<T, R> =
     this.join(prop.name, type)
 
 /**

@@ -34,16 +34,17 @@ class DSLTest {
         val name = RandomStringUtils.randomAlphabetic(20)
         val id = peopleRepository.save(People(name = name, age = 10)).id!!
 
-        peopleRepository.getById(id)
+        peopleRepository.getReferenceById(id)
         val entityManager = entityManagerFactory.createEntityManager()
         entityManager.removeAllCache()
-        peopleRepository.getById(id)
+        peopleRepository.getReferenceById(id)
 
     }
 
     @Test
     fun join() {
         println(Department::class.isOpen)
+        val name = RandomStringUtils.randomAlphabetic(20)
         val entityManager = entityManagerFactory.createEntityManager()
         entityManager.createCriteriaQuery(People::class.java, LightSpecification.where(null))
             .resultList
@@ -70,9 +71,17 @@ class DSLTest {
 
         entityManager.createCriteriaQueryWithTuple(People::class.java, { root, _ ->
             multiselect(
-                root.joinOne(People::belongDepartment).get(Department::name)
+                root.joinSingle(People::belongDepartment).get(Department::name)
             )
         }).resultList
+        // 单独属性时 我约定的是它所在的类的规格
+        // 或者反过来说 X的规格 也可以作用在X 所在的类
+        entityManager.createCriteriaQuery(
+            People::class.java, Department::name.equal(name)
+                .specificationSingleRelation(People::belongDepartment)
+        )
+
+
 
     }
 

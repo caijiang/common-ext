@@ -1,10 +1,8 @@
 package io.github.caijiang.common.jpa
 
-import io.github.caijiang.common.CriteriaBuilder
-import io.github.caijiang.common.CriteriaQuery
-import io.github.caijiang.common.From
-import io.github.caijiang.common.Predicate
+import io.github.caijiang.common.*
 import org.springframework.data.jpa.domain.Specification
+import kotlin.reflect.KProperty1
 
 /**
  *
@@ -62,6 +60,58 @@ fun interface LightSpecification<T> {
     fun <OTHER> cast(work: CriteriaBuilder.(From<*, out OTHER>) -> From<*, T>): LightSpecification<OTHER> {
         return LightSpecification { root, query, cb ->
             toPredicate(work(cb, root), query, cb)
+        }
+    }
+
+    /**
+     * @return 用当前规格限定所在类的规格
+     * @see [joinSingle]
+     */
+    fun <OTHER> specificationSingleRelation(
+        prop: KProperty1<OTHER, T?>,
+        type: JoinType = JoinType.INNER
+    ): LightSpecification<OTHER> {
+        return cast {
+            it.joinSingle(prop, type)
+        }
+    }
+
+    /**
+     * @return 用当前规格限定所在类的规格
+     * @see [joinSet]
+     */
+    fun <OTHER> specificationSetRelation(
+        prop: KProperty1<OTHER, Set<T>?>,
+        type: JoinType = JoinType.INNER
+    ): LightSpecification<OTHER> {
+        return cast {
+            it.joinSet(prop, type)
+        }
+    }
+
+    /**
+     * @return 用当前规格限定所在类的规格
+     * @see [joinCollection]
+     */
+    fun <OTHER> specificationCollectionRelation(
+        prop: KProperty1<OTHER, Collection<T>?>,
+        type: JoinType = JoinType.INNER
+    ): LightSpecification<OTHER> {
+        return cast {
+            it.joinCollection(prop, type)
+        }
+    }
+
+    /**
+     * @return 用当前规格限定所在类的规格
+     * @see [joinList]
+     */
+    fun <OTHER> specificationListRelation(
+        prop: KProperty1<OTHER, List<T>?>,
+        type: JoinType = JoinType.INNER
+    ): LightSpecification<OTHER> {
+        return cast {
+            it.joinList(prop, type)
         }
     }
 
