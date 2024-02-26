@@ -31,7 +31,7 @@ class JpaRestTest : AbstractSpringTest() {
     fun 复杂的组合的主键仓库() {
         val template = createTestTemplate()
 
-        val d1Href = assertThat(
+        val d1Href = assertThatRequest(
             template, "/departments", HttpMethod.POST, HttpEntity(
                 mapOf(
                     "name" to RandomStringUtils.randomAlphabetic(20),
@@ -44,7 +44,7 @@ class JpaRestTest : AbstractSpringTest() {
                 it.headers["Location"]!!.first()
             }
 
-        val ms1 = assertThat(
+        val ms1 = assertThatRequest(
             template, "/departmentMonthScores", HttpMethod.POST, HttpEntity(
                 mapOf(
                     "month" to YearMonth.now().toString(),
@@ -64,7 +64,7 @@ class JpaRestTest : AbstractSpringTest() {
 
         println(ms1)
 
-        assertThat(template, "/departmentMonthScores")
+        assertThatRequest(template, "/departmentMonthScores")
             .print()
             .readFromData {
                 it.body
@@ -76,14 +76,14 @@ class JpaRestTest : AbstractSpringTest() {
         val template = createTestTemplate()
 
 //        println(template.getForObject<String>("/"))
-        val currentTotal = assertThat(template, "/departments")
+        val currentTotal = assertThatRequest(template, "/departments")
             .asSpringRestCollection()
             .readTotal()!!
 
         println("currentTotal: $currentTotal")
 
         val department1Name = "d1"
-        assertThat(
+        assertThatRequest(
             template, "/departments", HttpMethod.POST, HttpEntity(
                 mapOf(
                     "name" to department1Name,
@@ -94,7 +94,7 @@ class JpaRestTest : AbstractSpringTest() {
             .print()
             .isSuccessResponse()
 
-        val d1href = assertThat(template, "/departments")
+        val d1href = assertThatRequest(template, "/departments")
             .asSpringRestCollection()
             .print()
             .total(currentTotal + 1)
@@ -114,7 +114,7 @@ class JpaRestTest : AbstractSpringTest() {
             .isNotNull()
 
         assertThat(
-            assertThat(template, "/int0")
+            assertThatRequest(template, "/int0")
                 .readData<Int>()
         )
             .isEqualTo(0)

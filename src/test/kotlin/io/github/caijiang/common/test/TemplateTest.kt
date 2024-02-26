@@ -22,14 +22,14 @@ class TemplateTest : AbstractSpringTest() {
     fun assertion() {
         val template = createTestTemplate()
 
-        assertThat(template, "/echoUrlEncoded?p1=1&p2=2")
+        assertThatRequest(template, "/echoUrlEncoded?p1=1&p2=2")
             .isLegalResponse()
             .isSuccessResponse()
 
-        assertThat(template.getForEntity("/echoUrlEncoded?p1=1&p2=2"))
+        assertThatResponse(template.getForEntity("/echoUrlEncoded?p1=1&p2=2"))
             .isLegalResponse()
 
-        assertThat(template, "/echoUrlEncoded22?p1=1&p2=2")
+        assertThatRequest(template, "/echoUrlEncoded22?p1=1&p2=2")
             .isFailedResponse()
             .isErrorCodeMatch("404")
 
