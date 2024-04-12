@@ -110,6 +110,10 @@ class JpaRestTest : AbstractSpringTest() {
             .hasBooleanNode(expected = false, optional = false) { it["enabled"] }
             .readSelfLink()
 
+        assertThatRequest(template, d1href)
+            .asSpringRest()
+            .hasThisType(JsonNodeType.STRING, false, "name")
+
         assertThat(d1href)
             .isNotNull()
 

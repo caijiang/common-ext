@@ -174,6 +174,26 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
         return this as SELF
     }
 
+    fun hasArrayNodeLength(expected: Int, optional: Boolean, path: String): SELF {
+        return hasArrayNodeLength(expected, optional) { it[path] }
+    }
+
+    fun hasArrayNodeLength(expected: Int, optional: Boolean, vararg path: Any): SELF {
+        return hasArrayNodeLength(expected, optional, path.toToNodeFunc())
+    }
+
+    fun hasArrayNodeLength(expected: Int, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+        hasThisType(JsonNodeType.ARRAY, optional, toNode)
+        val a = actual?.let(toNode)
+        if (!optional) {
+            objects.assertNotNull(info, a)
+        }
+        a?.let {
+            objects.assertEqual(info, it.size(), expected)
+        }
+        return this as SELF
+    }
+
 }
 
 private fun <T : Any> Array<T>.toToNodeFunc(): (JsonNode) -> JsonNode? {

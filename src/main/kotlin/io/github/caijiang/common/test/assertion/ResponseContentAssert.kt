@@ -2,6 +2,7 @@ package io.github.caijiang.common.test.assertion
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import io.github.caijiang.common.test.assertion.rest.RestResourceAssert
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollection
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollectionAssert
 import org.assertj.core.api.AbstractAssert
@@ -86,6 +87,9 @@ class ResponseContentAssert(
         return this
     }
 
+    /**
+     * @return 转成 spring rest 资源集合断言
+     */
     fun asSpringRestCollection(): RestResourceCollectionAssert {
         isSuccessResponse()
         if (businessResult != null) {
@@ -98,6 +102,17 @@ class ResponseContentAssert(
             )
         }
         return RestResourceCollectionAssert(null)
+    }
+
+    /**
+     * @return 转成 spring rest 单个资源断言
+     */
+    fun asSpringRest(): RestResourceAssert {
+        isSuccessResponse()
+        if (businessResult != null) {
+            return RestResourceAssert(businessResult?.body)
+        }
+        return RestResourceAssert(null)
     }
 
     /**

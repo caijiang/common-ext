@@ -54,28 +54,8 @@ abstract class AbstractSpringTest {
      * 断言响应
      * @see updateResponseBusinessLogic
      */
-    @Deprecated(replaceWith = ReplaceWith("assertThatResponse"), message = "很快要被废弃")
-    protected fun assertThat(data: ResponseEntity<String>): ResponseContentAssert {
-        return assertThatResponse(data)
-    }
-
-    /**
-     * 断言响应
-     * @see updateResponseBusinessLogic
-     */
     protected fun assertThatResponse(data: ResponseEntity<String>): ResponseContentAssert {
         return ResponseContentAssert(data, business)
-    }
-
-    /**
-     * 断言响应
-     * @see updateResponseBusinessLogic
-     */
-    @Deprecated(replaceWith = ReplaceWith("assertThatRequest"), message = "很快要被废弃")
-    protected fun assertThat(
-        template: RestTemplate, uri: String, method: HttpMethod = HttpMethod.GET, entity: HttpEntity<*>? = null
-    ): ResponseContentAssert {
-        return assertThatRequest(template, uri, method, entity)
     }
 
     /**
