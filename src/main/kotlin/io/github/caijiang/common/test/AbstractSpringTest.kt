@@ -54,7 +54,7 @@ abstract class AbstractSpringTest {
      * 断言响应
      * @see updateResponseBusinessLogic
      */
-    protected fun assertThatResponse(data: ResponseEntity<String>): ResponseContentAssert {
+    protected open fun assertThatResponse(data: ResponseEntity<String>): ResponseContentAssert<*> {
         return ResponseContentAssert(data, business)
     }
 
@@ -62,9 +62,9 @@ abstract class AbstractSpringTest {
      * 断言响应
      * @see updateResponseBusinessLogic
      */
-    protected fun assertThatRequest(
+    protected open fun assertThatRequest(
         template: RestTemplate, uri: String, method: HttpMethod = HttpMethod.GET, entity: HttpEntity<*>? = null
-    ): ResponseContentAssert {
+    ): ResponseContentAssert<*> {
         return assertThatResponse(template.exchange<String>(uri, method, entity))
     }
 

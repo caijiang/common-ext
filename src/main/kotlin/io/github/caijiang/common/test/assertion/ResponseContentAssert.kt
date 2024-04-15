@@ -14,31 +14,33 @@ import org.springframework.http.ResponseEntity
  * 对于业务结果可以理解为 成功或者失败,业务代码,业务概述,业务数据
  * @author CJ
  */
-class ResponseContentAssert(
+@Suppress("UNCHECKED_CAST")
+open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
     actual: ResponseEntity<String>,
     private val business: ToBusinessResult
-) : AbstractAssert<ResponseContentAssert, ResponseEntity<String>>(
+) : AbstractAssert<SELF, ResponseEntity<String>>(
     actual, ResponseContentAssert::class.java
 ) {
     private val log = LoggerFactory.getLogger(ResponseContentAssert::class.java)
     private val objectMapper = ObjectMapper()
 
 
-    private var businessResult: BusinessResult? = null
+    @Suppress("MemberVisibilityCanBePrivate")
+    protected var businessResult: BusinessResult? = null
 
     /**
      * @return 这是一个合法的响应
      */
-    fun isLegalResponse(): ResponseContentAssert {
+    fun isLegalResponse(): SELF {
 //        isNotBlank();
         readAsJson()
-        return this
+        return this as SELF
     }
 
     /**
      * @return 是个失败的请求
      */
-    fun isFailedResponse(): ResponseContentAssert {
+    fun isFailedResponse(): SELF {
         isLegalResponse()
         if (businessResult != null) {
             if (businessResult!!.success) {
@@ -46,13 +48,13 @@ class ResponseContentAssert(
             }
         }
 
-        return this
+        return this as SELF
     }
 
     /**
      * @return 是个成功的请求
      */
-    fun isSuccessResponse(): ResponseContentAssert {
+    fun isSuccessResponse(): SELF {
         isLegalResponse()
         if (businessResult != null) {
             if (!businessResult!!.success) {
@@ -63,20 +65,20 @@ class ResponseContentAssert(
                 )
             }
         }
-        return this
+        return this as SELF
     }
 
-    fun isErrorCodeMatch(code: String): ResponseContentAssert {
+    fun isErrorCodeMatch(code: String): SELF {
         isLegalResponse()
         if (businessResult != null) {
             if (businessResult!!.errorCode != code) {
                 failWithMessage("响应 Code 期望: " + code + ", 实际: " + businessResult!!.errorCode)
             }
         }
-        return this
+        return this as SELF
     }
 
-    fun print(): ResponseContentAssert {
+    fun print(): SELF {
         isLegalResponse()
         businessResult?.let {
             println("success:${it.success}")
@@ -84,7 +86,7 @@ class ResponseContentAssert(
             println("errorCode:${it.errorCode}")
             println("errorMessage:${it.errorMessage}")
         }
-        return this
+        return this as SELF
     }
 
     /**
