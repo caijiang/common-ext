@@ -103,11 +103,11 @@ class JpaRestTest : AbstractSpringTest() {
             .last()
             .print()
             .hasThisType(JsonNodeType.STRING, false, "name")
-            .hasThisType(JsonNodeType.STRING, false) { it["name"] }
+            .hasThisType(JsonNodeType.STRING, false, { it["name"] }, "name")
             .hasTextNode(department1Name, false, "name")
-            .hasTextNode(department1Name, false) { it["name"] }
+            .hasTextNode(department1Name, false, { it["name"] }, "name")
             .hasBooleanNode(expected = false, optional = false, path = "enabled")
-            .hasBooleanNode(expected = false, optional = false) { it["enabled"] }
+            .hasBooleanNode(expected = false, optional = false, { it["enabled"] }, "enabled")
             .readSelfLink()
 
         assertThatRequest(template, d1href)

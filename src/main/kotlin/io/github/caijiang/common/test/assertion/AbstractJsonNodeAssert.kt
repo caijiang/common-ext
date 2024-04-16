@@ -30,9 +30,9 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
      * 断言 path 所在的类型为输入值
      */
     fun hasThisType(expected: JsonNodeType, optional: Boolean, path: String): SELF {
-        return hasThisType(expected, optional) {
+        return hasThisType(expected, optional, {
             it[path]
-        }
+        }, path)
     }
 
     /**
@@ -40,14 +40,20 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
      * @param path 多重 path, 比如 "children",2   表示children里的第三个
      */
     fun hasThisType(expected: JsonNodeType, optional: Boolean, vararg path: Any): SELF {
-        return hasThisType(expected, optional, path.toToNodeFunc())
+        return hasThisType(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
     }
 
     /**
      * 断言 path 所在的类型为输入值
      * @param toNode 从当前 node 到目标 node
      */
-    fun hasThisType(expected: JsonNodeType, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+    fun hasThisType(
+        expected: JsonNodeType,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        info.description("field:%s", fieldDescription)
         val a = actual?.let(toNode)
         if (!optional) {
             objects.assertNotNull(info, a)
@@ -59,16 +65,22 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
     }
 
     fun hasNumberNode(expected: Number, optional: Boolean, path: String): SELF {
-        return hasNumberNode(expected, optional) {
+        return hasNumberNode(expected, optional, {
             it[path]
-        }
+        }, path)
     }
 
     fun hasNumberNode(expected: Number, optional: Boolean, vararg path: Any): SELF {
-        return hasNumberNode(expected, optional, path.toToNodeFunc())
+        return hasNumberNode(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
     }
 
-    fun hasNumberNode(expected: Number, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+    fun hasNumberNode(
+        expected: Number,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        info.description("field:%s", fieldDescription)
         val a = actual?.let(toNode)
         if (!optional) {
             objects.assertNotNull(info, a)
@@ -80,15 +92,21 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
     }
 
     fun hasTextNode(expected: String, optional: Boolean, path: String): SELF {
-        return hasTextNode(expected, optional) { it[path] }
+        return hasTextNode(expected, optional, { it[path] }, path)
     }
 
     fun hasTextNode(expected: String, optional: Boolean, vararg path: Any): SELF {
-        return hasTextNode(expected, optional, path.toToNodeFunc())
+        return hasTextNode(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
     }
 
-    fun hasTextNode(expected: String, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+    fun hasTextNode(
+        expected: String,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
         val a = actual?.let(toNode)
+        info.description("field:%s", fieldDescription)
         if (!optional) {
             objects.assertNotNull(info, a)
         }
@@ -99,14 +117,20 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
     }
 
     fun hasBigIntegerNode(expected: BigInteger, optional: Boolean, path: String): SELF {
-        return hasBigIntegerNode(expected, optional) { it[path] }
+        return hasBigIntegerNode(expected, optional, { it[path] }, path)
     }
 
     fun hasBigIntegerNode(expected: BigInteger, optional: Boolean, vararg path: Any): SELF {
-        return hasBigIntegerNode(expected, optional, path.toToNodeFunc())
+        return hasBigIntegerNode(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
     }
 
-    fun hasBigIntegerNode(expected: BigInteger, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+    fun hasBigIntegerNode(
+        expected: BigInteger,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        info.description("field:%s", fieldDescription)
         val a = actual?.let(toNode)
         if (!optional) {
             objects.assertNotNull(info, a)
@@ -118,14 +142,20 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
     }
 
     fun hasDecimalNode(expected: BigDecimal, optional: Boolean, path: String): SELF {
-        return hasDecimalNode(expected, optional) { it[path] }
+        return hasDecimalNode(expected, optional, { it[path] }, path)
     }
 
     fun hasDecimalNode(expected: BigDecimal, optional: Boolean, vararg path: Any): SELF {
-        return hasDecimalNode(expected, optional, path.toToNodeFunc())
+        return hasDecimalNode(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
     }
 
-    fun hasDecimalNode(expected: BigDecimal, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+    fun hasDecimalNode(
+        expected: BigDecimal,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        info.description("field:%s", fieldDescription)
         val a = actual?.let(toNode)
         if (!optional) {
             objects.assertNotNull(info, a)
@@ -137,14 +167,20 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
     }
 
     fun hasBooleanNode(expected: Boolean, optional: Boolean, path: String): SELF {
-        return hasBooleanNode(expected, optional) { it[path] }
+        return hasBooleanNode(expected, optional, { it[path] }, path)
     }
 
     fun hasBooleanNode(expected: Boolean, optional: Boolean, vararg path: Any): SELF {
-        return hasBooleanNode(expected, optional, path.toToNodeFunc())
+        return hasBooleanNode(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
     }
 
-    fun hasBooleanNode(expected: Boolean, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+    fun hasBooleanNode(
+        expected: Boolean,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        info.description("field:%s", fieldDescription)
         val a = actual?.let(toNode)
         if (!optional) {
             objects.assertNotNull(info, a)
@@ -156,14 +192,20 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
     }
 
     fun hasBinaryNode(expected: ByteArray, optional: Boolean, path: String): SELF {
-        return hasBinaryNode(expected, optional) { it[path] }
+        return hasBinaryNode(expected, optional, { it[path] }, path)
     }
 
     fun hasBinaryNode(expected: ByteArray, optional: Boolean, vararg path: Any): SELF {
-        return hasBinaryNode(expected, optional, path.toToNodeFunc())
+        return hasBinaryNode(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
     }
 
-    fun hasBinaryNode(expected: ByteArray, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
+    fun hasBinaryNode(
+        expected: ByteArray,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        info.description("field:%s", fieldDescription)
         val a = actual?.let(toNode)
         if (!optional) {
             objects.assertNotNull(info, a)
@@ -175,15 +217,21 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
     }
 
     fun hasArrayNodeLength(expected: Int, optional: Boolean, path: String): SELF {
-        return hasArrayNodeLength(expected, optional) { it[path] }
+        return hasArrayNodeLength(expected, optional, { it[path] }, "")
     }
 
     fun hasArrayNodeLength(expected: Int, optional: Boolean, vararg path: Any): SELF {
-        return hasArrayNodeLength(expected, optional, path.toToNodeFunc())
+        return hasArrayNodeLength(expected, optional, path.toToNodeFunc(), "")
     }
 
-    fun hasArrayNodeLength(expected: Int, optional: Boolean, toNode: (JsonNode) -> JsonNode?): SELF {
-        hasThisType(JsonNodeType.ARRAY, optional, toNode)
+    fun hasArrayNodeLength(
+        expected: Int,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        hasThisType(JsonNodeType.ARRAY, optional, toNode, fieldDescription)
+        info.description("field:%s", fieldDescription)
         val a = actual?.let(toNode)
         if (!optional) {
             objects.assertNotNull(info, a)
@@ -194,6 +242,10 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
         return this as SELF
     }
 
+}
+
+private fun <T> Array<T>.toFieldDescription(): String {
+    return this.joinToString { it.toString() }
 }
 
 private fun <T : Any> Array<T>.toToNodeFunc(): (JsonNode) -> JsonNode? {
