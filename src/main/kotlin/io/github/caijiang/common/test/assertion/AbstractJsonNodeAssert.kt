@@ -1,11 +1,14 @@
 package io.github.caijiang.common.test.assertion
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.internal.Objects
 import java.math.BigDecimal
 import java.math.BigInteger
+
+private val objectMapper = ObjectMapper()
 
 /**
  * 本来是想设计为所有 JsonNode 的基类，但明显遇到了困难
@@ -240,6 +243,41 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
             objects.assertEqual(info, it.size(), expected)
         }
         return this as SELF
+    }
+
+    /**
+     * 返回数据结果
+     *
+     * @return 返回数据结果
+     * @author Guomw 2023/6/16 17:29
+     */
+    fun <T> readData(javaClass: Class<T>, path: String): T? {
+        return readData(javaClass) { it[path] }
+    }
+
+    /**
+     * 返回数据结果
+     *
+     * @return 返回数据结果
+     * @author Guomw 2023/6/16 17:29
+     */
+    fun <T> readData(javaClass: Class<T>, vararg path: Any): T? {
+        return readData(javaClass, path.toToNodeFunc())
+    }
+
+    /**
+     * 返回数据结果
+     *
+     * @return 返回数据结果
+     * @author Guomw 2023/6/16 17:29
+     */
+    fun <T> readData(
+        javaClass: Class<T>,
+        toNode: (JsonNode) -> JsonNode? = { it },
+    ): T? {
+        val a = actual?.let(toNode) ?: return null
+        val reader = objectMapper.readerFor(javaClass)
+        return reader.readValue<T>(a)
     }
 
 }

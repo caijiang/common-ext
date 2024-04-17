@@ -110,6 +110,21 @@ class JpaRestTest : AbstractSpringTest() {
             .hasBooleanNode(expected = false, optional = false, { it["enabled"] }, "enabled")
             .readSelfLink()
 
+        val gd1 = assertThatRequest(template, "/departments")
+            .asSpringRestCollection()
+            .asEmbeddedList()
+            .last()
+            .readData(String::class.java, "name")
+
+        val gd2 = assertThatRequest(template, "/departments")
+            .asSpringRestCollection()
+            .asEmbeddedList()
+            .last()
+            .readData(String::class.java) { it["name"] }
+
+        assertThat(gd1).isEqualTo(department1Name)
+        assertThat(gd2).isEqualTo(department1Name)
+
         assertThatRequest(template, d1href)
             .asSpringRest()
             .hasThisType(JsonNodeType.STRING, false, "name")

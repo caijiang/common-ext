@@ -11,6 +11,25 @@ import org.springframework.util.ClassUtils
 object JpaUtils {
 
     @JvmStatic
+    fun jpaEntityEffectiveClass(entity: Any): Class<*> {
+        return if (ClassUtils.isPresent("org.hibernate.proxy.HibernateProxy", null)) {
+            if (entity is org.hibernate.proxy.HibernateProxy) entity.hibernateLazyInitializer.persistentClass else entity.javaClass
+        } else {
+            entity.javaClass
+        }
+    }
+
+    @JvmStatic
+    fun jpaEntityHashCode(entity: Any): Int {
+        return if (ClassUtils.isPresent("org.hibernate.proxy.HibernateProxy", null)) {
+            if (entity is org.hibernate.proxy.HibernateProxy) entity.hibernateLazyInitializer.persistentClass.hashCode() else entity.javaClass.hashCode()
+        } else {
+            entity.javaClass.hashCode()
+        }
+    }
+
+
+    @JvmStatic
     fun <T> createCriteriaQuery(
         entityManager: EntityManager,
         type: Class<T>,
