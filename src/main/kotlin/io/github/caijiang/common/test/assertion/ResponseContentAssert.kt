@@ -6,6 +6,8 @@ import io.github.caijiang.common.test.assertion.rest.RestResourceAssert
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollection
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollectionAssert
 import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.ObjectAssert
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 
@@ -90,6 +92,30 @@ open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
     }
 
     /**
+     * @return 断言业务结果是数组
+     */
+    fun isListResponse(): SELF {
+        isSuccessResponse()
+        if (businessResult != null) {
+            if (businessResult!!.body?.isArray != true) {
+                failWithMessage(
+                    "结果数据:%s 不是List",
+                    businessResult?.body
+                )
+            }
+        }
+        return this as SELF
+    }
+
+    /**
+     * @return 转成数组断言
+     */
+    fun asListAssert(): NormalJsonNodeArrayAssert {
+        isListResponse()
+        return NormalJsonNodeArrayAssert(businessResult?.body?.toMutableList())
+    }
+
+    /**
      * @return 转成 spring rest 资源集合断言
      */
     fun asSpringRestCollection(): RestResourceCollectionAssert {
@@ -134,6 +160,14 @@ open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
 
     inline fun <reified T> readData(): T? {
         return readData(T::class.java)
+    }
+
+    /**
+     * @return 关于实际结果的新断言
+     */
+    fun <T> asData(javaClass: Class<T>): ObjectAssert<T?> {
+        val rs = readData(javaClass)
+        return assertThat(rs)
     }
 
     fun <T> readFromData(reader: (BusinessResult) -> T?): T? {

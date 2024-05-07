@@ -32,5 +32,14 @@ class TestRestController {
     @ResponseBody
     fun readCookie(@CookieValue current: String?) = current
 
+    @GetMapping("/readString")
+    @ResponseBody
+    fun readString() = "String"
 
+    @GetMapping("/readList")
+    @ResponseBody
+    fun readList() = listOf(
+        mapOf("key1" to "value1", "key2" to "value2"),
+        mapOf("key3" to "value3", "key4" to "value4"),
+    )
 }

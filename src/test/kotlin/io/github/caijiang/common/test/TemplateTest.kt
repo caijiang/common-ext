@@ -19,6 +19,23 @@ import kotlin.test.Test
 class TemplateTest : AbstractSpringTest() {
 
     @Test
+    fun list() {
+        val template = createTestTemplate()
+
+        assertThatRequest(template, "/readString")
+            .isSuccessResponse()
+            .asData(String::class.java)
+            .isEqualTo("String")
+
+        assertThatRequest(template, "/readList")
+            .isSuccessResponse()
+            .isListResponse()
+            .asListAssert()
+            .first()
+            .hasTextNode("value1", false, "key1")
+    }
+
+    @Test
     fun assertion() {
         val template = createTestTemplate()
 

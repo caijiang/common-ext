@@ -17,7 +17,6 @@ abstract class AbstractJsonNodeArrayAssert<ELE_ASSERT : AbstractJsonNodeAssert<J
     )
 
 
-@Suppress("unused")
 class NormalJsonNodeArrayAssert(actual: MutableList<JsonNode>?) :
     AbstractJsonNodeArrayAssert<NormalJsonNodeAssert, NormalJsonNodeArrayAssert>(
         actual, NormalJsonNodeArrayAssert::class.java
