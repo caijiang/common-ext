@@ -42,4 +42,8 @@ class TestRestController {
         mapOf("key1" to "value1", "key2" to "value2"),
         mapOf("key3" to "value3", "key4" to "value4"),
     )
+
+    @GetMapping("/readObject")
+    @ResponseBody
+    fun readObject() = mapOf("key1" to "value1", "key2" to "value2")
 }

@@ -116,6 +116,30 @@ open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
     }
 
     /**
+     * @return 断言业务数据是对象
+     */
+    fun isObjectResponse(): SELF {
+        isSuccessResponse()
+        if (businessResult != null) {
+            if (businessResult!!.body?.isObject != true) {
+                failWithMessage(
+                    "结果数据:%s 不是Object",
+                    businessResult?.body
+                )
+            }
+        }
+        return this as SELF
+    }
+
+    /**
+     * @return 转成对象断言
+     */
+    fun asObject(): NormalJsonNodeObjectAssert {
+        isObjectResponse()
+        return NormalJsonNodeObjectAssert(businessResult?.body)
+    }
+
+    /**
      * @return 转成 spring rest 资源集合断言
      */
     fun asSpringRestCollection(): RestResourceCollectionAssert {

@@ -16,6 +16,5 @@ abstract class AbstractJsonNodeObjectAssert<SELF : AbstractObjectAssert<SELF, Js
     actual, selfType
 )
 
-@Suppress("unused")
 class NormalJsonNodeObjectAssert(actual: JsonNode?) :
     AbstractJsonNodeObjectAssert<NormalJsonNodeObjectAssert>(actual, NormalJsonNodeObjectAssert::class.java)
