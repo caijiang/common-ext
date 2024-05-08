@@ -325,6 +325,14 @@ abstract class AbstractJsonNodeAssert<SELF : AbstractJsonNodeAssert<SELF>>(
     }
 
     /**
+     * @return 断言当前的类型
+     */
+    fun thisTypeEqualTo(type: JsonNodeType): SELF {
+        objects.assertEqual(info, actual.nodeType, type)
+        return this as SELF
+    }
+
+    /**
      * 返回数据结果
      *
      * @return 返回数据结果
