@@ -25,7 +25,7 @@ class RestResourceCollectionAssert(actual: RestResourceCollection?) :
         }
         try {
             val name = actual.embedded.fieldNames().next()
-            return RestResourceListAssert(actual.embedded[name]!!.toMutableList())
+            return RestResourceListAssert(actual.embedded[name])
         } catch (ignored: Exception) {
             return RestResourceListAssert(null)
         }

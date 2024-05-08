@@ -27,6 +27,9 @@ class TemplateTest : AbstractSpringTest() {
             .asData(String::class.java)
             .isEqualTo("String")
 
+        assertThat(listOf(""))
+            .last()
+
         assertThatRequest(template, "/readList")
             .isSuccessResponse()
             .isListResponse()
@@ -39,6 +42,13 @@ class TemplateTest : AbstractSpringTest() {
             .isObjectResponse()
             .asObject()
             .hasTextNode("value1", false, "key1")
+
+        assertThatRequest(template, "/readComplexList")
+            .asListAssert()
+            .first()
+            .assertData("key2")
+            .hasTextNode("value3", false, "key3")
+
     }
 
     @Test

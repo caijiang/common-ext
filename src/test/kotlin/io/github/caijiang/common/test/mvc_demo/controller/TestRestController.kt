@@ -46,4 +46,22 @@ class TestRestController {
     @GetMapping("/readObject")
     @ResponseBody
     fun readObject() = mapOf("key1" to "value1", "key2" to "value2")
+
+    @GetMapping("/readComplexList")
+    @ResponseBody
+    fun readComplexList() = listOf(
+        mapOf(
+            "key1" to "value1", "key2" to mapOf(
+                "key3" to "value3",
+            )
+        ),
+    )
+
+    @GetMapping("/readComplexObject")
+    @ResponseBody
+    fun readComplexObject() = mapOf(
+        "key1" to "value1", "key2" to listOf(
+            mapOf("key3" to "value3", "key4" to "value4"),
+        )
+    )
 }

@@ -3,25 +3,75 @@ package io.github.caijiang.common.test.assertion
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeType
+import org.assertj.core.api.AbstractListAssert
 import org.assertj.core.api.AbstractObjectAssert
+import org.assertj.core.api.Condition
+import org.assertj.core.api.EnumerableAssert
+import org.assertj.core.api.filter.FilterOperator
 import org.assertj.core.internal.Objects
 import java.math.BigDecimal
 import java.math.BigInteger
+import java.util.function.Predicate
 
 private val objectMapper = ObjectMapper()
 
 /**
- * 本来是想设计为所有 JsonNode 的基类，但明显遇到了困难
+ * @param AT 元素断言的类型
+ */
+@Suppress("UNCHECKED_CAST")
+class FakeJsonArrayAssert<AT : AbstractJsonNodeAssert<AT>>(
+    actual: MutableList<JsonNode>?,
+    private val assertType: Class<*>,
+) :
+    AbstractListAssert<FakeJsonArrayAssert<AT>, MutableList<JsonNode>, JsonNode, AT>(
+        actual,
+        FakeJsonArrayAssert::class.java
+    ) {
+    override fun toAssert(value: JsonNode?, description: String?): AT {
+        return (assertType.kotlin.constructors
+            .find { it.parameters.size == 1 && it.parameters[0].type.classifier == JsonNode::class }
+            ?.call(value) ?: throw IllegalArgumentException("no constructors find for :$assertType")) as AT
+    }
+
+    override fun newAbstractIterableAssert(iterable: MutableIterable<JsonNode>?): FakeJsonArrayAssert<AT> {
+        return FakeJsonArrayAssert(iterable?.toMutableList(), assertType)
+    }
+//
+//    fun back():AT{
+//        return assertInstance
+//    }
+}
+
+/**
+ * 从代码技巧上实现 [AbstractListAssert]
  * @author CJ
  */
 @Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
-abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAssert<SELF, NODE>>(
-    actual: NODE?,
-    selfType: Class<*>
+abstract class AbstractJsonNodeAssert<SELF : AbstractJsonNodeAssert<SELF>>(
+    actual: JsonNode?,
+    selfType: Class<*>,
+    private val innerListAssertHelper: FakeJsonArrayAssert<SELF> = FakeJsonArrayAssert(
+        actual?.toMutableList(),
+        selfType
+    )
 ) :
-    AbstractObjectAssert<SELF, NODE>(
+    AbstractObjectAssert<SELF, JsonNode>(
         actual, selfType
-    ) {
+    ), EnumerableAssert<FakeJsonArrayAssert<SELF>, JsonNode> by innerListAssertHelper {
+    fun first(): SELF = innerListAssertHelper.first()
+    fun last(): SELF = innerListAssertHelper.last()
+    fun filteredOn(propertyOrFieldName: String, expectedValue: Any): FakeJsonArrayAssert<SELF> =
+        innerListAssertHelper.filteredOn(propertyOrFieldName, expectedValue)
+
+    fun filteredOn(condition: Condition<in JsonNode>): FakeJsonArrayAssert<SELF> =
+        innerListAssertHelper.filteredOn(condition)
+
+    fun filteredOn(predicate: Predicate<in JsonNode>): FakeJsonArrayAssert<SELF> =
+        innerListAssertHelper.filteredOn(predicate)
+
+    fun filteredOn(propertyOrFieldName: String, filterOperator: FilterOperator<*>): FakeJsonArrayAssert<SELF> =
+        innerListAssertHelper.filteredOn(propertyOrFieldName, filterOperator)
+
     private val objects = Objects.instance()
 
     fun print(): SELF {
@@ -245,6 +295,35 @@ abstract class AbstractJsonNodeAssert<NODE : JsonNode, SELF : AbstractObjectAsse
         return this as SELF
     }
 
+    // 转成新的断言，一种是普通的，一种是对象，一种是数组
+    /**
+     * @return 断言关联字段
+     */
+    fun assertData(vararg path: Any): SELF {
+        return assertData(path.toToNodeFunc())
+    }
+
+    /**
+     * @return 断言关联字段
+     */
+    fun assertData(toNode: (JsonNode) -> JsonNode? = { it }): SELF {
+        val rs = toNode(actual)
+        val javaClass = myself.javaClass
+
+        // 2
+        return javaClass.kotlin.constructors.find {
+            it.parameters.size == 2
+                    && it.parameters[0].type.classifier == JsonNode::class
+                    && it.parameters[1].type.classifier == Class::class
+        }?.call(rs, javaClass)
+            ?: javaClass.kotlin.constructors.find {
+                it.parameters.size == 1
+                        && it.parameters[0].type.classifier == JsonNode::class
+            }?.call(rs)
+            ?: throw IllegalArgumentException("No constructor found for ${javaClass.name}")
+
+    }
+
     /**
      * 返回数据结果
      *
@@ -306,6 +385,5 @@ private fun <T : Any> Array<T>.toToNodeFunc(): (JsonNode) -> JsonNode? {
     }
 }
 
-
 class NormalJsonNodeAssert(actual: JsonNode?) :
-    AbstractJsonNodeAssert<JsonNode, NormalJsonNodeAssert>(actual, NormalJsonNodeAssert::class.java)
+    AbstractJsonNodeAssert<NormalJsonNodeAssert>(actual, NormalJsonNodeAssert::class.java)

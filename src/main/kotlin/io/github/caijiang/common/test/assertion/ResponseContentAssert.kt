@@ -1,5 +1,6 @@
 package io.github.caijiang.common.test.assertion
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import io.github.caijiang.common.test.assertion.rest.RestResourceAssert
@@ -17,8 +18,12 @@ import org.springframework.http.ResponseEntity
  * @author CJ
  */
 @Suppress("UNCHECKED_CAST")
-open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
+open class ResponseContentAssert<
+        SELF : ResponseContentAssert<SELF, JSON_ASSERT>,
+        JSON_ASSERT : AbstractJsonNodeAssert<JSON_ASSERT>
+        >(
     actual: ResponseEntity<String>,
+    private val jsonAssertType: Class<JSON_ASSERT>,
     private val business: ToBusinessResult
 ) : AbstractAssert<SELF, ResponseEntity<String>>(
     actual, ResponseContentAssert::class.java
@@ -110,9 +115,11 @@ open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
     /**
      * @return 转成数组断言
      */
-    fun asListAssert(): NormalJsonNodeArrayAssert {
+    fun asListAssert(): JSON_ASSERT {
         isListResponse()
-        return NormalJsonNodeArrayAssert(businessResult?.body?.toMutableList())
+        return jsonAssertType.kotlin.constructors
+            .find { it.parameters.size == 1 && it.parameters[0].type.classifier == JsonNode::class }
+            ?.call(businessResult?.body) ?: throw IllegalArgumentException("no constructors find for $jsonAssertType¬")
     }
 
     /**
@@ -134,9 +141,11 @@ open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
     /**
      * @return 转成对象断言
      */
-    fun asObject(): NormalJsonNodeObjectAssert {
+    fun asObject(): JSON_ASSERT {
         isObjectResponse()
-        return NormalJsonNodeObjectAssert(businessResult?.body)
+        return jsonAssertType.kotlin.constructors
+            .find { it.parameters.size == 1 && it.parameters[0].type.classifier == JsonNode::class }
+            ?.call(businessResult?.body) ?: throw IllegalArgumentException("no constructors find for $jsonAssertType¬")
     }
 
     /**
@@ -217,3 +226,8 @@ open class ResponseContentAssert<SELF : ResponseContentAssert<SELF>>(
     }
 
 }
+
+class NormalResponseContentAssert(actual: ResponseEntity<String>, business: ToBusinessResult) :
+    ResponseContentAssert<NormalResponseContentAssert, NormalJsonNodeAssert>(
+        actual, NormalJsonNodeAssert::class.java, business
+    )

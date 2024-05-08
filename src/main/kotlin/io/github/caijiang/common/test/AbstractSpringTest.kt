@@ -1,5 +1,6 @@
 package io.github.caijiang.common.test
 
+import io.github.caijiang.common.test.assertion.NormalResponseContentAssert
 import io.github.caijiang.common.test.assertion.ResponseContentAssert
 import io.github.caijiang.common.test.assertion.StdToBusinessResult
 import io.github.caijiang.common.test.assertion.ToBusinessResult
@@ -54,8 +55,8 @@ abstract class AbstractSpringTest {
      * 断言响应
      * @see updateResponseBusinessLogic
      */
-    protected open fun assertThatResponse(data: ResponseEntity<String>): ResponseContentAssert<*> {
-        return ResponseContentAssert(data, business)
+    protected open fun assertThatResponse(data: ResponseEntity<String>): ResponseContentAssert<*, *> {
+        return NormalResponseContentAssert(data, business)
     }
 
     /**
@@ -64,7 +65,7 @@ abstract class AbstractSpringTest {
      */
     protected open fun assertThatRequest(
         template: RestTemplate, uri: String, method: HttpMethod = HttpMethod.GET, entity: HttpEntity<*>? = null
-    ): ResponseContentAssert<*> {
+    ): ResponseContentAssert<*, *> {
         return assertThatResponse(template.exchange<String>(uri, method, entity))
     }
 
