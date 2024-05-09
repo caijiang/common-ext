@@ -50,7 +50,7 @@ class FakeJsonArrayAssert<AT : AbstractJsonNodeAssert<AT>>(
 abstract class AbstractJsonNodeAssert<SELF : AbstractJsonNodeAssert<SELF>>(
     actual: JsonNode?,
     selfType: Class<*>,
-    private val innerListAssertHelper: FakeJsonArrayAssert<SELF> = FakeJsonArrayAssert(
+    protected val innerListAssertHelper: FakeJsonArrayAssert<SELF> = FakeJsonArrayAssert(
         actual?.toMutableList(),
         selfType
     )
