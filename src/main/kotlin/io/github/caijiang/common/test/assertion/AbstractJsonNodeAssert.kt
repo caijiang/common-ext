@@ -169,6 +169,31 @@ abstract class AbstractJsonNodeAssert<SELF : AbstractJsonNodeAssert<SELF>>(
         return this as SELF
     }
 
+    fun hasTextNode(expected: Predicate<String>, optional: Boolean, path: String): SELF {
+        return hasTextNode(expected, optional, { it[path] }, path)
+    }
+
+    fun hasTextNode(expected: Predicate<String>, optional: Boolean, vararg path: Any): SELF {
+        return hasTextNode(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
+    }
+
+    fun hasTextNode(
+        expected: Predicate<String>,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        val a = actual?.let(toNode)
+        info.description("field:%s", fieldDescription)
+        if (!optional) {
+            objects.assertNotNull(info, a)
+        }
+        a?.let {
+            objects.assertEqual(info, expected.test(it.textValue()), true)
+        }
+        return this as SELF
+    }
+
     fun hasBigIntegerNode(expected: BigInteger, optional: Boolean, path: String): SELF {
         return hasBigIntegerNode(expected, optional, { it[path] }, path)
     }
