@@ -1,6 +1,7 @@
 package io.github.caijiang.common.mysql
 
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataAccessException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.util.StringUtils
 import java.sql.ResultSet
@@ -89,18 +90,24 @@ object MysqlCharsetCorrect {
         template: JdbcTemplate, tableName: String, columns: Collection<String>, charset: String,
         collation: String
     ): List<String> {
-        return template.query(
-            "show full fields from $tableName"
-        ) { rs: ResultSet, _: Int ->
-            FieldDefine(
-                rs.getString("Field"),
-                rs.getString("Type"),
-                rs.getString("Collation"),
-                rs.getBoolean("Null"),
-                rs.getString("Default"),
-                rs.getString("Comment")
-            )
+        val fieldDefines = try {
+            template.query(
+                "show full fields from $tableName"
+            ) { rs: ResultSet, _: Int ->
+                FieldDefine(
+                    rs.getString("Field"),
+                    rs.getString("Type"),
+                    rs.getString("Collation"),
+                    rs.getBoolean("Null"),
+                    rs.getString("Default"),
+                    rs.getString("Comment")
+                )
+            }
+        } catch (e: DataAccessException) {
+            log.info("处理${tableName}时，发生了错误，我们忽略了这个错误。", e)
+            return emptyList()
         }
+        return fieldDefines
             .filter {
                 columns.any { x -> x.equals(it.field, ignoreCase = true) }
             }
