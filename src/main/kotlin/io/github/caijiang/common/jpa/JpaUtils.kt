@@ -28,6 +28,25 @@ object JpaUtils {
         }
     }
 
+    @JvmStatic
+    fun <T, P> createCriteriaQueryWithCustom(
+        entityManager: EntityManager,
+        entityType: Class<T>,
+        resultType: Class<P>,
+        toResult: CriteriaQuery<P>.(Root<T>, CriteriaBuilder) -> CriteriaQuery<P>,
+        spec: LightSpecification<T>?
+    ): TypedQuery<P> {
+        val cb = entityManager.criteriaBuilder
+        val cq = cb.createQuery(resultType)
+        val root = cq.from(entityType)
+        val predicates = listOfNotNull(spec?.toPredicate(root, cq, cb))
+            .toTypedArray()
+
+        return entityManager.createQuery(
+            toResult(cq, root, cb)
+                .where(*predicates)
+        )
+    }
 
     @JvmStatic
     fun <T> createCriteriaQuery(
