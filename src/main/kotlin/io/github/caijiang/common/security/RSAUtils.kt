@@ -12,9 +12,25 @@ import java.util.*
 
 
 /**
+ * ## 生成稳定私钥
+ * ```shell
+ * openssl genpkey -out rsa_key.pem -algorithm RSA -pkeyopt rsa_keygen_bits:2048
+ * ```
  * @author CJ
  */
 object RSAUtils {
+
+    /**
+     * @return 随机私钥对
+     */
+    @JvmStatic
+    @Throws(InvalidParameterException::class)
+    fun generatePrivateKey(keySize: Int = 2048): KeyPair {
+        return KeyPairGenerator.getInstance("RSA").apply {
+            initialize(keySize)
+        }.generateKeyPair()
+    }
+
     /**
      * @param key pem(pkcs8) 格式的rsa 密钥
      */

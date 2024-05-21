@@ -19,6 +19,9 @@ import kotlin.test.Test
 class RSAUtilsTest {
     @Test
     fun go() {
+        val gpk = RSAUtils.generatePrivateKey().private
+        println(gpk)
+
         val keyFile = File.createTempFile("java", ".pem")
         keyFile.deleteOnExit()
         val process =
