@@ -80,6 +80,9 @@ dependencies {
     testImplementation("org.springframework:spring-test:$springFrameworkVersion")
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
 
+    // execl
+    compileAndTest("com.alibaba:easyexcel:3.3.4")
+
     // http
     compileAndTest("org.apache.httpcomponents.client5:httpclient5:5.3")
     compileAndTest("org.apache.httpcomponents:httpclient:4.5.14")
