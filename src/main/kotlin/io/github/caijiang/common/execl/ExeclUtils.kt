@@ -6,13 +6,8 @@ import com.alibaba.excel.metadata.data.ReadCellData
 import com.alibaba.excel.read.builder.ExcelReaderBuilder
 import com.alibaba.excel.read.listener.ReadListener
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
-import org.apache.poi.hssf.usermodel.HSSFWorkbookFactory
-import org.apache.poi.ss.usermodel.CellType
-import org.apache.poi.ss.usermodel.ClientAnchor
-import org.apache.poi.ss.usermodel.FillPatternType
-import org.apache.poi.ss.usermodel.IndexedColors
+import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.xssf.usermodel.XSSFWorkbookFactory
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
@@ -62,7 +57,7 @@ object ExeclUtils {
         }
     }
 
-    data class RowMack(
+    data class RowMessage(
         val sheetIndex: Int,
         val rowIndex: Int,
         /**
@@ -76,18 +71,27 @@ object ExeclUtils {
     )
 
     /**
+     * @return 获取所有的 sheet name
+     */
+    @JvmStatic
+    fun sheetNames(data: InputStream): List<String> {
+        val book = WorkbookFactory.create(data)
+
+        return book.use { bk ->
+            (0).rangeUntil(bk.numberOfSheets)
+                .map { bk.getSheetName(it) }
+        }
+    }
+
+    /**
      * 将一些批注或者警告写入现有 xls
      * @param data 数据
      * @param author 批注作者
      * @param rows 批注警告信息
      */
     @JvmStatic
-    fun easyMackXls(data: InputStream, author: String, vararg rows: RowMack): File {
-        val book = try {
-            XSSFWorkbookFactory.create(data)
-        } catch (e: Exception) {
-            HSSFWorkbookFactory.create(data)
-        }
+    fun easyAddExeclMessages(data: InputStream, author: String, vararg rows: RowMessage): File {
+        val book = WorkbookFactory.create(data)
 
         book.use { workbook ->
             val factory = workbook.creationHelper
@@ -172,26 +176,12 @@ object ExeclUtils {
         try {
             val allCellRangeAddress = mutableListOf<CellRangeAddress>()
 
-            try {
-                XSSFWorkbookFactory.create(temp).use { book ->
-                    allCellRangeAddress.addAll(
-                        book.getSheetAt(sheetNo)
-                            .mergedRegions
-                    )
-                }
-            } catch (_: Exception) {
+            WorkbookFactory.create(temp).use { book ->
+                allCellRangeAddress.addAll(
+                    book.getSheetAt(sheetNo)
+                        .mergedRegions
+                )
             }
-            try {
-                if (allCellRangeAddress.isEmpty())
-                    HSSFWorkbookFactory.create(temp).use { book ->
-                        allCellRangeAddress.addAll(
-                            book.getSheetAt(sheetNo)
-                                .mergedRegions
-                        )
-                    }
-            } catch (_: Exception) {
-            }
-
 
             val headers = mutableMapOf<Int, String>()
 
