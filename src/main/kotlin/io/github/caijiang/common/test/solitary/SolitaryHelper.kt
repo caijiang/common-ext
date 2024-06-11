@@ -221,6 +221,17 @@ object SolitaryHelper {
             System.setProperty("mysql.username", username)
             System.setProperty("mysql.password", password)
 
+            val thread = Thread {
+                log.info("try to stop mysql")
+                try {
+                    instance.stop()
+                } catch (e: Throwable) {
+                    log.warn("when stop mysql", e)
+                }
+            }
+            thread.setDaemon(true)
+            Runtime.getRuntime().addShutdownHook(thread)
+
             return instance
         } catch (e: Exception) {
             log.error("启动内置mysql 实例", e)
