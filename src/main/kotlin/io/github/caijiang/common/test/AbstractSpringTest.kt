@@ -10,6 +10,9 @@ import org.springframework.beans.factory.getBean
 import org.springframework.boot.test.web.client.LocalHostUriTemplateHandler
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationEvent
+import org.springframework.context.ConfigurableApplicationContext
+import org.springframework.context.PayloadApplicationEvent
 import org.springframework.core.env.Environment
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -19,6 +22,9 @@ import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.ResponseErrorHandler
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.exchange
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
+import java.util.function.Predicate
 
 /**
  * 基于 spring,junit 的测试基类
@@ -38,7 +44,6 @@ abstract class AbstractSpringTest {
 
     }
 
-    @Autowired
     private lateinit var applicationContext: ApplicationContext
 
     @Autowired
@@ -67,6 +72,50 @@ abstract class AbstractSpringTest {
         template: RestTemplate, uri: String, method: HttpMethod = HttpMethod.GET, entity: HttpEntity<*>? = null
     ): ResponseContentAssert<*, *> {
         return assertThatResponse(template.exchange<String>(uri, method, entity))
+    }
+
+    private val semaphore = Semaphore(0)
+    private var releaseSemaphorePredicate: Predicate<ApplicationEvent>? = null
+
+    @Autowired
+    fun updateApplicationContext(context: ApplicationContext) {
+        applicationContext = context
+        (context as? ConfigurableApplicationContext)?.let { ctx ->
+            ctx.addApplicationListener { event ->
+                releaseSemaphorePredicate?.let {
+                    if (it.test(event)) {
+                        semaphore.release()
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 让当前线程等待，直到 spring 丢出了一件你中意的事件
+     * @see org.springframework.context.PayloadApplicationEvent
+     * @throws InterruptedException 当前线程被噶
+     */
+    @Throws(InterruptedException::class)
+    protected fun pleaseWaitUntilEvent(icu: Predicate<ApplicationEvent>) {
+        val current = semaphore.availablePermits()
+        releaseSemaphorePredicate = icu
+        // 测试目的5分钟肯定足够了
+        if (semaphore.tryAcquire(current + 1, 5, TimeUnit.MINUTES)) {
+            return
+        }
+        throw AssertionError("timeout for such event")
+    }
+
+    /**
+     * 跟 [pleaseWaitUntilEvent] 定义一致，区别是仅校对[PayloadApplicationEvent.payload]
+     */
+    @Throws(InterruptedException::class)
+    protected fun pleaseWaitUntilPayloadApplicationEvent(icu: Predicate<Any?>) {
+        pleaseWaitUntilEvent { event ->
+            (event as? PayloadApplicationEvent<*>)?.let { icu.test(it.payload) }
+                ?: false
+        }
     }
 
     /**
