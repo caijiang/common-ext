@@ -32,14 +32,14 @@ class EventTest : AbstractSpringTest() {
             }
             .start()
 
-        pleaseWaitUntilEvent {
+        pleaseWaitUntilEvent({
             if (it is PayloadApplicationEvent<*> && it.payload == "pleaseWaitUntilEvent")
                 true
             else {
                 println(it)
                 false
             }
-        }
+        })
 
         Thread({
             Thread.sleep(1000)
@@ -50,9 +50,9 @@ class EventTest : AbstractSpringTest() {
             }
             .start()
 
-        pleaseWaitUntilPayloadApplicationEvent {
+        pleaseWaitUntilPayloadApplicationEvent({
             it == "pleaseWaitUntilPayloadApplicationEvent"
-        }
+        })
     }
 
 }

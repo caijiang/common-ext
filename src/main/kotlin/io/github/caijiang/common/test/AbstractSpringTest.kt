@@ -95,27 +95,32 @@ abstract class AbstractSpringTest {
      * 让当前线程等待，直到 spring 丢出了一件你中意的事件
      * @see org.springframework.context.PayloadApplicationEvent
      * @throws InterruptedException 当前线程被噶
+     * @return true 事件成功发生, false 超时了
      */
     @Throws(InterruptedException::class)
-    protected fun pleaseWaitUntilEvent(icu: Predicate<ApplicationEvent>) {
+    protected fun pleaseWaitUntilEvent(
+        icu: Predicate<ApplicationEvent>,
+        timeout: Long = 1,
+        unit: TimeUnit = TimeUnit.MINUTES
+    ): Boolean {
         val current = semaphore.availablePermits()
         releaseSemaphorePredicate = icu
-        // 测试目的5分钟肯定足够了
-        if (semaphore.tryAcquire(current + 1, 5, TimeUnit.MINUTES)) {
-            return
-        }
-        throw AssertionError("timeout for such event")
+        return semaphore.tryAcquire(current + 1, timeout, unit)
     }
 
     /**
      * 跟 [pleaseWaitUntilEvent] 定义一致，区别是仅校对[PayloadApplicationEvent.payload]
      */
     @Throws(InterruptedException::class)
-    protected fun pleaseWaitUntilPayloadApplicationEvent(icu: Predicate<Any?>) {
-        pleaseWaitUntilEvent { event ->
+    protected fun pleaseWaitUntilPayloadApplicationEvent(
+        icu: Predicate<Any?>,
+        timeout: Long = 1,
+        unit: TimeUnit = TimeUnit.MINUTES
+    ): Boolean {
+        return pleaseWaitUntilEvent({ event ->
             (event as? PayloadApplicationEvent<*>)?.let { icu.test(it.payload) }
                 ?: false
-        }
+        }, timeout, unit)
     }
 
     /**
