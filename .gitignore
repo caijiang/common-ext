@@ -41,7 +41,12 @@ bin/
 ### Mac OS ###
 .DS_Store
 
+### maven ###
+/target
+
 ### common-ext ###
 /src/main/kotlin/io/github/caijiang/common/EEType.kt
 /review
 /src/test/kotlin/io/github/caijiang/common/**/Local*.kt
+
+
