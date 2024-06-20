@@ -6,10 +6,9 @@ name: Main
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  #    tags: [ "*" ]
-  #  pull_request:
-  #    branches: [ "*" ]
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,6 +18,15 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      mysql57:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: db
+        ports:
+          - 3306:3306
 
     strategy:
       matrix:
@@ -45,8 +53,9 @@ jobs:
           ORG_GRADLE_PROJECT_ee: ${{ matrix.ee-version }}
         run: ./gradlew -i test
 
-  # This workflow contains a single job called "build"
+  # 只有 main 分支 才可以执行临时版本发布
   build:
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: test
     # The type of runner that the job will run on
     runs-on: ubuntu-latest

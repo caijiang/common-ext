@@ -1,10 +1,10 @@
 @file:Suppress("VulnerableLibrariesLocal")
 
 import java.net.URI
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-
 
 plugins {
     kotlin("jvm") version "1.9.21"
@@ -13,6 +13,7 @@ plugins {
     signing
     id("org.jetbrains.dokka") version "1.9.10"
     kotlin("plugin.jpa") version "1.9.21"
+    antlr
 }
 
 /**
@@ -119,6 +120,8 @@ dependencies {
     } else {
         compileAndTest("com.github.codemonstur:embedded-redis:1.0.0")
     }
+
+    antlr("org.antlr:antlr4:4.5")
 }
 
 tasks.test {
@@ -154,7 +157,7 @@ val copyEE = tasks.create("copyEE") {
 
 tasks.compileKotlin {
     compilerOptions.freeCompilerArgs.add("-Xjvm-default=all")
-    dependsOn(copyEE)
+    dependsOn(copyEE, tasks.generateGrammarSource)
 }
 
 // publish
@@ -253,3 +256,43 @@ extensions.configure<PublishingExtension> {
 signing {
     sign(publishing.publications["maven"])
 }
+
+//创建一个下载任务
+fun downloadFile(url: URL, target: File) {
+    if (!target.exists()) {
+        logger.info("downloading {} to {}", url, target)
+        target.parentFile.mkdirs()
+        url.openStream().use { input ->
+            Files.copy(input, target.toPath())
+        }
+    }
+}
+
+val downloadMysqlGrammar by tasks.register("downloadMysqlGrammar") {
+    doFirst {
+        val home = File(rootDir, "src/main/antlr")
+        downloadFile(
+            URL("https://github.com/antlr/grammars-v4/raw/master/sql/mysql/Oracle/MySQLParser.g4"),
+            File(home, "MySQLParser.g4")
+        )
+
+        downloadFile(
+            URL("https://github.com/antlr/grammars-v4/raw/master/sql/mysql/Oracle/MySQLLexer.g4"),
+            File(home, "MySQLLexer.g4")
+        )
+    }
+}
+
+tasks.withType<AntlrTask> {
+    //source("src/main/antlr")
+    //source("build/generated-src/antlr4")
+//    dependsOn(downloadMysqlGrammar)
+//    arguments = arguments + listOf("-visitor", "-long-messages")
+    arguments = arguments + listOf("-package", "io.github.caijiang.common.mysql")
+
+    outputDirectory = File(outputDirectory, "io/github/caijiang/common/mysql")
+}
+
+//tasks.generateGrammarSource {
+//
+//}
