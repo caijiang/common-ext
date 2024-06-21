@@ -10,12 +10,14 @@ import com.wix.mysql.config.MysqldConfig
 import com.wix.mysql.distribution.Version
 import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
+import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.springframework.util.StringUtils
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.net.ServerSocket
 import java.util.*
 import java.util.function.Function
+import javax.sql.DataSource
 import kotlin.concurrent.Volatile
 
 /**
@@ -130,7 +132,7 @@ object SolitaryHelper {
             val settingMethod = type.getDeclaredMethod("setting", String::class.java)
             val buildMethod = type.getDeclaredMethod("build")
 
-            var builder = type.newInstance()
+            var builder = type.getDeclaredConstructor().newInstance()
             builder = portMethod.invoke(builder, port)
             builder = settingMethod.invoke(builder, "requirepass $password")
             return RedisServerEntry(buildMethod.invoke(builder))
@@ -263,6 +265,24 @@ object SolitaryHelper {
         ServerSocket(0).use { socket ->
             socket.reuseAddress = true
             return (socket.localPort)
+        }
+    }
+
+    /**
+     * @see createMysql
+     * @return 如果这里成功创建过 mysql,这个方法就可以获得一个有效的 datasource
+     */
+    @JvmStatic
+    fun currentMysqlDatasource(): DataSource {
+        return DriverManagerDataSource(
+            "jdbc:mysql://localhost:${
+                System.getProperty("mysql.port")
+                    ?: throw IllegalStateException("没有调用过 SolitaryHelper.createMysql")
+            }/${System.getProperty("mysql.database")}",
+            System.getProperty("mysql.username"),
+            System.getProperty("mysql.password")
+        ).apply {
+            setDriverClassName("com.mysql.jdbc.Driver")
         }
     }
 

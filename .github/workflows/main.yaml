@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+#      SolitaryHelper 以后应当增强 如果发现当前环境配置了容器服务，那么直接用就是了
+#      env 中 CI true GITHUB_ACTIONS true 可以判断是否运行在 github 中
       mysql57:
         image: mysql:5.7
         env:

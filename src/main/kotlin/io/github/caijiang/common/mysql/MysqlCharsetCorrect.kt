@@ -79,30 +79,12 @@ object MysqlCharsetCorrect {
     }
 
 
-    private data class FieldDefine(
-        val field: String, val type: String,
-        val collation: String?, val nullable: Boolean,
-        val defaultValue: String?,
-        val comment: String?
-    )
-
     private fun charsetCorrect(
         template: JdbcTemplate, tableName: String, columns: Collection<String>, charset: String,
         collation: String
     ): List<String> {
         val fieldDefines = try {
-            template.query(
-                "show full fields from $tableName"
-            ) { rs: ResultSet, _: Int ->
-                FieldDefine(
-                    rs.getString("Field"),
-                    rs.getString("Type"),
-                    rs.getString("Collation"),
-                    rs.getBoolean("Null"),
-                    rs.getString("Default"),
-                    rs.getString("Comment")
-                )
-            }
+            FieldDefine.fromTemplate(template, tableName)
         } catch (e: DataAccessException) {
             log.info("处理${tableName}时，发生了错误，我们忽略了这个错误。", e)
             return emptyList()

@@ -121,7 +121,8 @@ dependencies {
         compileAndTest("com.github.codemonstur:embedded-redis:1.0.0")
     }
 
-    antlr("org.antlr:antlr4:4.5")
+    antlr("org.antlr:antlr4:4.13.0")
+    compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
 }
 
 tasks.test {
@@ -272,13 +273,12 @@ val downloadMysqlGrammar by tasks.register("downloadMysqlGrammar") {
     doFirst {
         val home = File(rootDir, "src/main/antlr")
         downloadFile(
-            URL("https://github.com/antlr/grammars-v4/raw/master/sql/mysql/Oracle/MySQLParser.g4"),
-            File(home, "MySQLParser.g4")
+            URL("https://github.com/antlr/grammars-v4/raw/dependabot/maven/antlr.version-4.13.0/sql/mysql/Positive-Technologies/MySqlParser.g4"),
+            File(home, "MySqlParser.g4")
         )
-
         downloadFile(
-            URL("https://github.com/antlr/grammars-v4/raw/master/sql/mysql/Oracle/MySQLLexer.g4"),
-            File(home, "MySQLLexer.g4")
+            URL("https://github.com/antlr/grammars-v4/raw/dependabot/maven/antlr.version-4.13.0/sql/mysql/Positive-Technologies/MySqlLexer.g4"),
+            File(home, "MySqlLexer.g4")
         )
     }
 }
@@ -286,10 +286,8 @@ val downloadMysqlGrammar by tasks.register("downloadMysqlGrammar") {
 tasks.withType<AntlrTask> {
     //source("src/main/antlr")
     //source("build/generated-src/antlr4")
-//    dependsOn(downloadMysqlGrammar)
-//    arguments = arguments + listOf("-visitor", "-long-messages")
+    dependsOn(downloadMysqlGrammar)
     arguments = arguments + listOf("-package", "io.github.caijiang.common.mysql")
-
     outputDirectory = File(outputDirectory, "io/github/caijiang/common/mysql")
 }
 
