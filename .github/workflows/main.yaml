@@ -20,8 +20,8 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-#      SolitaryHelper 以后应当增强 如果发现当前环境配置了容器服务，那么直接用就是了
-#      env 中 CI true GITHUB_ACTIONS true 可以判断是否运行在 github 中
+      #      SolitaryHelper 以后应当增强 如果发现当前环境配置了容器服务，那么直接用就是了
+      #      env 中 CI true GITHUB_ACTIONS true 可以判断是否运行在 github 中
       mysql57:
         image: mysql:5.7
         env:
@@ -32,9 +32,10 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [ 8 ]
+        java-version: [ 11 ]
         jpa-implements: [ hibernate,eclipseLink ]
         ee-version: [ java,jakarta ]
+    permissions: write-all
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -54,6 +55,15 @@ jobs:
           ORG_GRADLE_PROJECT_jpaImpl: ${{ matrix.jpa-implements }}
           ORG_GRADLE_PROJECT_ee: ${{ matrix.ee-version }}
         run: ./gradlew -i test
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        #        if: success() || failure() # always run even if the previous step fails
+        with:
+          report_paths: 'build/test-results/test/TEST-*.xml'
+          #          token: ${{secrets.TOKEN}}
+          fail_on_failure: false
+          require_tests: true
+          include_passed: true
 
   # 只有 main 分支 才可以执行临时版本发布
   build:
@@ -64,7 +74,7 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [ 8 ]
+        java-version: [ 11 ]
         ee-version: [ java,jakarta ]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 

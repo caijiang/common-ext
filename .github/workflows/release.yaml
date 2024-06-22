@@ -20,7 +20,7 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [ 8 ]
+        java-version: [ 11 ]
         ee-version: [ java,jakarta ]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
