@@ -29,6 +29,12 @@ jobs:
           MYSQL_DATABASE: db
         ports:
           - 3306:3306
+    env:
+      provided_mysql_host: 127.0.0.1
+      provided_mysql_port: 3306
+      provided_mysql_database: db
+      provided_mysql_username: root
+      provided_mysql_password: password
 
     strategy:
       matrix:

@@ -2,7 +2,8 @@ package io.github.caijiang.common.test.solitary
 
 import com.wix.mysql.Sources
 import com.wix.mysql.distribution.Version
-import io.github.caijiang.common.jdbc.mysqlCollate
+import io.github.caijiang.common.jdbc.mysqlCollateCorrect
+import io.github.caijiang.common.mysql.MysqlCharsetCorrect
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty
 import org.springframework.core.io.ClassPathResource
@@ -61,13 +62,13 @@ class SolitaryHelperTest {
     @DisabledIfSystemProperty(named = "os.name", matches = "Linux")
     fun mysql() {
         SolitaryHelper.createMysql(null, null)
-            .stop()
+            .close()
 
         SolitaryHelper.createMysql(Version.v5_7_latest, null)
-            .stop()
+            .close()
 
         SolitaryHelper.createMysql(Version.v5_7_latest, { it.withPort(5050) })
-            .stop()
+            .close()
 
         SolitaryHelper.createMysql(
             Version.v5_7_latest, { it.withPort(5050) },
@@ -77,15 +78,24 @@ class SolitaryHelperTest {
                 // 顺便测试 mysqlCollate
                 JdbcTemplate(
                     DriverManagerDataSource(
-                        "jdbc:mysql://localhost:5050/${System.getProperty("mysql.database")}",
+                        "jdbc:mysql://${
+                            System.getProperty(
+                                "mysql.host",
+                                "localhost"
+                            )
+                        }:5050/${System.getProperty("mysql.database")}",
                         System.getProperty("mysql.username"),
                         System.getProperty("mysql.password")
                     ).apply {
                         setDriverClassName("com.mysql.jdbc.Driver")
                     }
-                ).mysqlCollate("utf8mb4_unicode_ci", mapOf("t1" to setOf("v1")))
+                ).mysqlCollateCorrect(
+                    listOf(
+                        MysqlCharsetCorrect.TextColumnCharset("t1", setOf("v1"), "utf8mb4")
+                    )
+                )
             }
-            .stop()
+            .close()
 
         assertThat(System.getProperty("mysql.port"))
             .isNotEmpty()

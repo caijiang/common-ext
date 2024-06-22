@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.ConnectionCallback
 import org.springframework.jdbc.core.JdbcTemplate
 
+@Suppress("SqlSourceToSinkFlow")
 object JdbcUtils {
     private val log = LoggerFactory.getLogger(JdbcUtils::class.java)
 
@@ -30,6 +31,7 @@ object JdbcUtils {
      * @param tables 目标表，以及其字段
      */
     @JvmStatic
+    @Deprecated("请使用 MysqlCharsetCorrect 代替")
     fun mysqlCollate(template: JdbcTemplate, collateName: String, tables: Map<String, Set<String>>) {
         if (template.execute(ConnectionCallback { con -> con.metaData.databaseProductName.equals("mysql", true) })!!) {
             tables.forEach { (t, u) ->

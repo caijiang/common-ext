@@ -10,11 +10,16 @@ import com.wix.mysql.config.MysqldConfig
 import com.wix.mysql.distribution.Version
 import org.apache.commons.lang3.RandomStringUtils
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.jdbc.datasource.DriverManagerDataSource
+import org.springframework.jdbc.datasource.init.ScriptUtils
 import org.springframework.util.StringUtils
+import java.io.Closeable
+import java.lang.System.getenv
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.net.ServerSocket
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.function.Function
 import javax.sql.DataSource
@@ -28,7 +33,7 @@ import kotlin.concurrent.Volatile
  */
 object SolitaryHelper {
     @Volatile
-    private var instance: EmbeddedMysql? = null
+    private var mysqlInstance: Closeable? = null
 
     @Volatile
     private var redisServer: RedisServerEntry? = null
@@ -41,6 +46,7 @@ object SolitaryHelper {
      * 会因此产生几个新增的系统属性
      *
      *  * mysql.port
+     *  * mysql.host
      *  * mysql.database
      *  * mysql.username
      *  * mysql.password
@@ -53,18 +59,21 @@ object SolitaryHelper {
      * @see Sources.fromString
      * @see Sources.fromFile
      */
-    @Suppress("unused")
     @JvmStatic
     fun mysql(
         version: Version?,
         serverConfigBuilderFunction: Function<MysqldConfig.Builder, MysqldConfig.Builder>?,
         vararg initScripts: SqlScriptSource
-    ): EmbeddedMysql {
-        if (instance != null) {
-            return instance!!
+    ): Closeable {
+        if (mysqlInstance != null) {
+            return mysqlInstance!!
         }
-        instance = createMysql(version, serverConfigBuilderFunction, *initScripts)
-        return instance!!
+        val target = createMysqlOrProvided(version, serverConfigBuilderFunction, *initScripts)
+        mysqlInstance = Closeable {
+            target.close()
+            mysqlInstance = null
+        }
+        return mysqlInstance!!
     }
 
     /**
@@ -147,13 +156,69 @@ object SolitaryHelper {
         }
     }
 
+    /**
+     * 环境提供数据库的环境变量命名标准是:
+     *  - provided_mysql_host(必须)
+     *  - provided_mysql_port 默认 3306
+     *  - provided_mysql_database(必须)
+     *  - provided_mysql_username 默认 root
+     *  - provided_mysql_password 默认 空
+     *
+     * 如果环境提供了 mysql 则优先使用（当然无法再管理）
+     * 没有的话则继续沿用[createMysql]，其系统属性协议与[createMysql] 保持一致
+     *
+     * @since 1.1.0
+     */
+    @JvmStatic
+    fun createMysqlOrProvided(
+        version: Version?,
+        serverConfigBuilderFunction: Function<MysqldConfig.Builder, MysqldConfig.Builder>?,
+        vararg initScripts: SqlScriptSource
+    ): Closeable {
+        val host =
+            getenv("provided_mysql_host") ?: return createMysql(version, serverConfigBuilderFunction, *initScripts)
+        val database =
+            getenv("provided_mysql_database") ?: return createMysql(version, serverConfigBuilderFunction, *initScripts)
+        val port = getenv("provided_mysql_port") ?: "3306"
+        val username = getenv("provided_mysql_username") ?: "root"
+        val password = getenv("provided_mysql_password") ?: ""
+        log.info("use provided mysql @:{}", host)
 
+        System.setProperty("mysql.host", host)
+        System.setProperty("mysql.port", port)
+        System.setProperty("mysql.username", username)
+        System.setProperty("mysql.password", password)
+        System.setProperty("mysql.database", database)
+
+        val dataSource = currentMysqlDatasource()
+        dataSource.connection.use { connection ->
+            initScripts.forEach {
+                ScriptUtils.executeSqlScript(
+                    connection,
+                    ByteArrayResource(it.read().toByteArray(StandardCharsets.UTF_8))
+                )
+            }
+        }
+
+        return Closeable { }
+    }
+
+    /**
+     * 创建指定版本的 mysql 实例
+     * 以下系统属性肯定会被设置:
+     *  - mysql.port
+     *  - mysql.host
+     *  - mysql.username
+     *  - mysql.password
+     *  - mysql.database
+     *
+     */
     @JvmStatic
     fun createMysql(
         version: Version?,
         serverConfigBuilderFunction: Function<MysqldConfig.Builder, MysqldConfig.Builder>?,
         vararg initScripts: SqlScriptSource
-    ): EmbeddedMysql {
+    ): Closeable {
         try {
             // 没有严格说明要求的数据库版本，默认流程较广的 5.7
             val scf = serverConfigBuilderFunction ?: Function.identity()
@@ -194,7 +259,7 @@ object SolitaryHelper {
                     )
             } else {
                 // 如果在 ci 环境 那就用ci 目录，因为设置良好的ci 目录具备缓存功能，反之则使用默认的用户目录
-                val dir = System.getenv("CI_PROJECT_DIR")
+                val dir = getenv("CI_PROJECT_DIR")
                 if (StringUtils.hasLength(dir)) {
                     builder = builder
                         .withDownloadConfig(
@@ -219,6 +284,7 @@ object SolitaryHelper {
                 Sources.fromString("grant all on *.* to '$username'@'%'")
             )
 
+            System.setProperty("mysql.host", "localhost")
             System.setProperty("mysql.database", database)
             System.setProperty("mysql.username", username)
             System.setProperty("mysql.password", password)
@@ -234,7 +300,9 @@ object SolitaryHelper {
             thread.setDaemon(true)
             Runtime.getRuntime().addShutdownHook(thread)
 
-            return instance
+            return Closeable {
+                instance.stop()
+            }
         } catch (e: Exception) {
             log.error("启动内置mysql 实例", e)
             throw RuntimeException(e)
@@ -243,7 +311,7 @@ object SolitaryHelper {
 
     internal fun runInAliyunFlow(
         toEnv: (String) -> String?
-        = { t -> System.getenv(t) }
+        = { t -> getenv(t) }
     ): List<String>? {
         if (toEnv("CI_RUNTIME_VERSION") == null) {
             return null
@@ -275,7 +343,7 @@ object SolitaryHelper {
     @JvmStatic
     fun currentMysqlDatasource(): DataSource {
         return DriverManagerDataSource(
-            "jdbc:mysql://localhost:${
+            "jdbc:mysql://${System.getProperty("mysql.host", "localhost")}:${
                 System.getProperty("mysql.port")
                     ?: throw IllegalStateException("没有调用过 SolitaryHelper.createMysql")
             }/${System.getProperty("mysql.database")}",

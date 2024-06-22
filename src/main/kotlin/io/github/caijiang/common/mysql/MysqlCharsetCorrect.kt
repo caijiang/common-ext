@@ -9,7 +9,6 @@ import java.sql.ResultSet
 /**
  * @author CJ
  */
-@Suppress("unused")
 object MysqlCharsetCorrect {
     private val log = LoggerFactory.getLogger(MysqlCharsetCorrect::class.java)
 

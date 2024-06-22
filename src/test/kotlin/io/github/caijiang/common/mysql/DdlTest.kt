@@ -1,5 +1,6 @@
 package io.github.caijiang.common.mysql
 
+import com.wix.mysql.Sources
 import com.wix.mysql.distribution.Version
 import io.github.caijiang.common.test.solitary.SolitaryHelper
 import org.assertj.core.api.Assertions.assertThat
@@ -13,10 +14,16 @@ import kotlin.test.Test
  */
 class DdlTest {
 
+    /**
+     * provided_mysql_database=ce;provided_mysql_host=localhost;provided_mysql_port=3357;provided_mysql_password=root
+     */
     @Test
     fun executeScriptResource() {
-        val mysql = SolitaryHelper.createMysql(Version.v5_7_latest, null)
-        try {
+        SolitaryHelper.createMysqlOrProvided(
+            Version.v5_7_latest, null, Sources.fromFile(
+                ClassPathResource("ddl_pre.sql").file
+            )
+        ).use {
             val template = JdbcTemplate(SolitaryHelper.currentMysqlDatasource())
             Ddl.executeScriptResource(template, ClassPathResource("ddl1.sql"))
             // 这里执行好了 就 建了表
@@ -80,9 +87,6 @@ class DdlTest {
                 }
                 .hasSize(1)
 
-
-        } finally {
-            mysql.stop()
         }
     }
 }
