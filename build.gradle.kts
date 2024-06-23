@@ -188,6 +188,7 @@ tasks.jar {
 
 tasks.named<AbstractArchiveTask>("sourcesJar") {
     archiveBaseName = "${project.name}-$ee"
+    dependsOn(tasks.generateGrammarSource)
 }
 
 extensions.configure<PublishingExtension> {
