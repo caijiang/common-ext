@@ -64,4 +64,8 @@ class TestRestController {
             mapOf("key3" to "value3", "key4" to "value4"),
         )
     )
+
+    @GetMapping("/readNull")
+    @ResponseBody
+    fun readNull() = null
 }

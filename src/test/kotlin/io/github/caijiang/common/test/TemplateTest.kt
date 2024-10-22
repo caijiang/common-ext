@@ -49,6 +49,10 @@ class TemplateTest : AbstractSpringTest() {
             .assertData("key2")
             .hasTextNode("value3", false, "key3")
 
+        assertThatRequest(template, "/readNull")
+            .isSuccessResponse()
+            .isNullResponse()
+
     }
 
     @Test

@@ -149,6 +149,27 @@ open class ResponseContentAssert<
     }
 
     /**
+     * @return 断言业务数据是 null
+     * @see 1.2.0
+     */
+    fun isNullResponse(): SELF {
+        isLegalResponse()
+        if (businessResult != null) {
+            // body 不是 null 而且 is Null 也不是
+            if (businessResult!!.body != null) {
+                if (businessResult!!.body?.isNull != true) {
+                    failWithMessage(
+                        "结果数据:%s 不是null",
+                        businessResult?.body
+                    )
+                }
+            }
+
+        }
+        return this as SELF
+    }
+
+    /**
      * @return 转成 spring rest 资源集合断言
      */
     fun asSpringRestCollection(): RestResourceCollectionAssert {
