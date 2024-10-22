@@ -206,6 +206,9 @@ open class ResponseContentAssert<
     fun <T> readData(javaClass: Class<T>): T? {
         isSuccessResponse()
         if (businessResult != null) {
+            if (businessResult!!.body == null) {
+                return null
+            }
             val reader = objectMapper.readerFor(javaClass)
             return reader.readValue(businessResult!!.body)
         }
