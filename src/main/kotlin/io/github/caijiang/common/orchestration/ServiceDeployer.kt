@@ -34,6 +34,10 @@ class ServiceDeployer(
 ) {
     private val executorService = Executors.newCachedThreadPool()
 
+    protected fun finalize() {
+        executorService.shutdownNow()
+    }
+
     /**
      * 1. 流量下线
      * 1. 检查流量
