@@ -117,7 +117,7 @@ class ServiceDeployer(
                                         NullOutputStream.NULL_OUTPUT_STREAM,
                                         StandardCharsets.US_ASCII
                                     )
-                                }, 3, TimeUnit.MINUTES)
+                                }, 3, TimeUnit.MINUTES, true)
 
                                 log.info("执行健康检查...")
                                 runIn("健康检查", {
@@ -199,13 +199,23 @@ class ServiceDeployer(
         }
     }
 
-    private fun <T> runIn(taskName: String, func: () -> T, timeout: Long, unit: TimeUnit = TimeUnit.SECONDS): T {
+    private fun <T> runIn(
+        taskName: String,
+        func: () -> T?,
+        timeout: Long,
+        unit: TimeUnit = TimeUnit.SECONDS,
+        allowTimeout: Boolean = false
+    ): T? {
         val future = executorService.submit(Callable { func() })
         try {
             return future.get(timeout, unit)
         } catch (e: ExecutionException) {
             throw e.cause!!
         } catch (e: TimeoutException) {
+            if (allowTimeout) {
+                log.info("执行{}时超时,但有可能是正常情况", taskName)
+                return null
+            }
             future.cancel(true)
             throw IllegalStateException("执行${taskName}时超时", e)
         }
