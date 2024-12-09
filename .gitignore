@@ -48,5 +48,5 @@ bin/
 /src/main/kotlin/io/github/caijiang/common/EEType.kt
 /review
 /src/test/kotlin/io/github/caijiang/common/**/Local*.kt
-
+/local
 

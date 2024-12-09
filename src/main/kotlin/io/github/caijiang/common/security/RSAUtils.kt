@@ -50,6 +50,21 @@ object RSAUtils {
     }
 
     /**
+     * @since 0.1.0
+     * @param key pem(pkcs8) 格式的rsa 密钥
+     * @see readPrivateKeyFromPKCS8
+     * @return KeyPair
+     */
+    @Throws(InvalidKeySpecException::class)
+    @JvmStatic
+    fun readKeyPairFromPKCS8(key: String): KeyPair {
+        val privateKey = readPrivateKeyFromPKCS8(key)
+        return KeyPair(
+            extraPublicKey(privateKey), privateKey
+        )
+    }
+
+    /**
      * 用 SHA256withRSA 签名
      * @return 签名并且 base64 后的字符
      */

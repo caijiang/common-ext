@@ -123,6 +123,10 @@ dependencies {
 
     antlr("org.antlr:antlr4:4.13.0")
     compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
+
+    // aliyun
+    compileAndTest("org.apache.sshd:sshd-core:2.3.0")
+    compileAndTest("com.aliyun:alibabacloud-alb20200616:1.0.13")
 }
 
 tasks.test {

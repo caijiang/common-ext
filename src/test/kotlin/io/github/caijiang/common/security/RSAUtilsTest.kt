@@ -30,6 +30,8 @@ class RSAUtilsTest {
 
         val privateKey = RSAUtils.readPrivateKeyFromPKCS8(keyFile.readText(Charsets.UTF_8))
         println(privateKey)
+        assertThat(privateKey).isNotNull
+        assertThat(RSAUtils.readKeyPairFromPKCS8(keyFile.readText(Charsets.UTF_8))).isNotNull
 
 //        随机数据
         val payload = RandomStringUtils.randomAlphabetic(32).toByteArray()

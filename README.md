@@ -85,3 +85,9 @@ public class AnyConfigClass {
 #### 调试
 
 通过调整日志`io.github.caijiang.common.lock`的等级即可在日志中获取相关信息。
+
+## 版本历史
+
+### 0.1.0
+
+引入包 `io.github.caijiang.common.orchestration`和`io.github.caijiang.common.aliyun`
