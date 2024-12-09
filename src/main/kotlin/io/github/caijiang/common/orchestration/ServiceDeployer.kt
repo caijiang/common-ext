@@ -60,7 +60,7 @@ class ServiceDeployer(
         val nodes = entrances.flatMap { it.discoverNodes(service) }
             .distinctBy { it.ip }
 
-        log.info("found ${nodes.size} nodes")
+        log.info("有 ${nodes.size}  个节点需要处理")
 
         for (node in nodes) {
             log.info("开始处理:{}", node.ip)
@@ -75,18 +75,18 @@ class ServiceDeployer(
                             session.auth().verify(10000)
                             log.debug("ssh login successful")
 
-                            log.debug("开始依赖环境检查，包括权限，基础设施等")
+                            log.info("开始依赖环境检查，包括权限，基础设施等...")
                             environmentCheck(session, node, service)
 
                             log.debug("检查是否需要部署")
                             if (!restart && targetAlreadyDeploy(session, deployment)) {
-                                log.info("node:{} already deployed", node.ip)
+                                log.info("node:{} already deployed (如果需要重新部署可通过 restart 指令)", node.ip)
                             } else {
                                 val il = node.ingressLess
 
                                 // 流量下线
                                 if (!il) {
-                                    log.debug("停止流量进入{}...", node.ip)
+                                    log.info("停止流量进入{}...", node.ip)
                                     entrances.forEach { it.suspendNode(node) }
                                     log.debug("检查流量是否已经走完")
                                     runIn("检查流量是否走完", {
@@ -106,7 +106,7 @@ class ServiceDeployer(
                                     }, 3, TimeUnit.MINUTES)
                                 }
 
-                                log.debug("执行部署指令")
+                                log.info("执行部署指令...")
                                 runIn("执行部署", {
                                     // TODO 环境暂不支持
                                     val cmd =
@@ -119,7 +119,7 @@ class ServiceDeployer(
                                     )
                                 }, 3, TimeUnit.MINUTES)
 
-                                log.debug("执行健康检查")
+                                log.info("执行健康检查...")
                                 runIn("健康检查", {
                                     val hc = service.healthCheck
                                     val cmd = hc.toHealthCheckCommand(node)
@@ -144,7 +144,7 @@ class ServiceDeployer(
                                 }, 5, TimeUnit.MINUTES)
 
                                 if (!il) {
-                                    log.debug("恢复流量进入{}...", node.ip)
+                                    log.info("恢复流量进入{}...", node.ip)
                                     entrances.forEach { it.resumedNode(node) }
                                 }
 
