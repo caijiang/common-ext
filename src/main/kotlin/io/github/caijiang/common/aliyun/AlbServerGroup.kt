@@ -1,9 +1,7 @@
 package io.github.caijiang.common.aliyun
 
 import com.aliyun.sdk.service.alb20200616.AsyncClient
-import com.aliyun.sdk.service.alb20200616.models.ListServerGroupServersRequest
-import com.aliyun.sdk.service.alb20200616.models.ListServerGroupServersResponseBody
-import com.aliyun.sdk.service.alb20200616.models.UpdateServerGroupServersAttributeRequest
+import com.aliyun.sdk.service.alb20200616.models.*
 import io.github.caijiang.common.Slf4j
 import io.github.caijiang.common.Slf4j.Companion.log
 import io.github.caijiang.common.orchestration.IngressEntrance
@@ -22,6 +20,10 @@ class AlbServerGroup(
      */
     private val groupId: String,
     private val locator: ResourceLocator,
+    /**
+     * 可以获知该服务器组是否正常工作的监听 id
+     */
+    private val listenerId: String? = null,
 ) : IngressEntrance {
     override fun suspendNode(serviceNode: ServiceNode) {
         val ecs = serviceNode as? EcsNodeInAlbGroup ?: return
@@ -34,12 +36,62 @@ class AlbServerGroup(
         }
     }
 
+    private var justResumed = false
+
     override fun resumedNode(serviceNode: ServiceNode) {
         val ecs = serviceNode as? EcsNodeInAlbGroup ?: return
         val weight = lastList.filter { it.serverId == ecs.serverId }.map { it.weight }.firstOrNull() ?: return
         changeWeight {
             if (it.serverId == ecs.serverId) weight else null
         }
+        justResumed = true
+    }
+
+    override fun checkWorkStatus(node: ServiceNode): Boolean {
+        if (listenerId == null) {
+            log.debug("服务器组:{} 没有关联监听，无法获知是否正常工作", groupId)
+            return true
+        }
+        if (justResumed) {
+            justResumed = false
+            log.debug("刚刚尝试了恢复流量，阿里云反应迟钝，这里暂停 一分钟再检查流量状态")
+            Thread.sleep(60000)
+        }
+        Helper.createClientForProduct("alb", locator)
+            .use { client ->
+                var nextToken: String? = null
+                val list = mutableListOf<GetListenerHealthStatusResponseBody.ServerGroupInfos>()
+                while (true) {
+                    val request = GetListenerHealthStatusRequest.builder()
+                        .listenerId(listenerId)
+                        .nextToken(nextToken)
+                        .build()
+
+                    val response = client.getListenerHealthStatus(request).get()
+
+                    response.body?.listenerHealthStatus?.forEach { healthStatus ->
+                        healthStatus.serverGroupInfos?.let {
+                            list.addAll(it)
+                        }
+                    }
+
+                    if (response.body.nextToken?.isNotBlank() == true) {
+                        nextToken = response.body.nextToken
+                    } else
+                        break
+                }
+
+                return list.asSequence().filter { it.serverGroupId == groupId }
+                    .filter { it.nonNormalServers != null }
+                    .flatMap { it.nonNormalServers }
+                    .filter { it.serverIp == node.ip }
+                    .onEach {
+                        log.debug("ip:{}, status:{}, reason:{}", node.ip, it.status, it.reason)
+                    }
+                    .count() == 0
+                //
+            }
+
     }
 
 

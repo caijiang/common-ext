@@ -14,4 +14,9 @@ interface IngressEntrance : NodeDiscoverer {
      * 恢复流量
      */
     fun resumedNode(serviceNode: ServiceNode)
+
+    /**
+     * 检查工作状态
+     */
+    fun checkWorkStatus(node: ServiceNode): Boolean
 }

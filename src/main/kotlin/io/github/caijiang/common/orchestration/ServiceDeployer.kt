@@ -87,7 +87,21 @@ class ServiceDeployer(
                                 // 流量下线
                                 if (!il) {
                                     log.info("停止流量进入{}...", node.ip)
-                                    entrances.forEach { it.suspendNode(node) }
+                                    entrances.forEach {
+                                        runIn("停止流量进入${node.ip}", {
+                                            while (true) {
+                                                try {
+                                                    log.trace("执行停止流量进入{}", node.ip)
+                                                    it.suspendNode(node)
+                                                    break
+                                                } catch (e: Exception) {
+                                                    log.trace("尝试停止流量时", e)
+                                                    Thread.sleep(3000)
+                                                }
+                                            }
+
+                                        }, 3, TimeUnit.MINUTES)
+                                    }
                                     log.debug("检查流量是否已经走完")
                                     runIn("检查流量是否走完", {
                                         while (true) {
@@ -145,7 +159,34 @@ class ServiceDeployer(
 
                                 if (!il) {
                                     log.info("恢复流量进入{}...", node.ip)
-                                    entrances.forEach { it.resumedNode(node) }
+                                    entrances.forEach {
+                                        runIn("恢复流量进入${node.ip}", {
+                                            while (true) {
+                                                try {
+                                                    log.trace("执行恢复流量进入{}", node.ip)
+                                                    it.resumedNode(node)
+                                                    break
+                                                } catch (e: Exception) {
+                                                    log.trace("尝试恢复流量时", e)
+                                                    Thread.sleep(3000)
+                                                }
+                                            }
+
+                                        }, 3, TimeUnit.MINUTES)
+                                    }
+
+                                    log.info("检查流量是否进入{}...", node.ip)
+                                    entrances.forEach {
+                                        runIn("检查流量是否可以正常进入${node.ip}了", {
+                                            while (true) {
+                                                log.trace("执行检查流量是否可以正常进入{}", node.ip)
+                                                if (it.checkWorkStatus(node))
+                                                    break
+                                                Thread.sleep(3000)
+                                            }
+
+                                        }, 6, TimeUnit.MINUTES)
+                                    }
                                 }
 
                             }
