@@ -131,7 +131,7 @@ class ServiceDeployer(
                                         NullOutputStream.NULL_OUTPUT_STREAM,
                                         StandardCharsets.US_ASCII
                                     )
-                                }, 3, TimeUnit.MINUTES, true)
+                                }, 5, TimeUnit.MINUTES, true)
 
                                 log.info("执行健康检查...")
                                 runIn("健康检查", {
@@ -155,7 +155,7 @@ class ServiceDeployer(
                                             }
                                         }
                                     }
-                                }, 5, TimeUnit.MINUTES)
+                                }, 6, TimeUnit.MINUTES)
 
                                 if (!il) {
                                     log.info("恢复流量进入{}...", node.ip)
