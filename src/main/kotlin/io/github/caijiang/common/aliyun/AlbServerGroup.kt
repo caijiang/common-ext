@@ -48,7 +48,6 @@ class AlbServerGroup(
     override fun discoverNodes(service: Service): List<ServiceNode> {
         return Helper.createClientForProduct("alb", locator)
             .use { client ->
-
                 val servers = readServers(client)
                 val list = servers
                     .filter { it.serverType == "Ecs" }
@@ -71,21 +70,32 @@ class AlbServerGroup(
             }
     }
 
-    private fun readServers(client: AsyncClient): MutableList<ListServerGroupServersResponseBody.Servers> {
-        // Parameter settings for API request
-        val listServerGroupServersRequest = ListServerGroupServersRequest.builder()
-            .serverGroupId(groupId) // Request-level configuration rewrite, can set Http request parameters, etc.
-            // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
-            .build()
+    private fun readServers(client: AsyncClient): List<ListServerGroupServersResponseBody.Servers> {
+        val list = mutableListOf<ListServerGroupServersResponseBody.Servers>()
+        var nextToken: String? = null
+        while (true) {
+            // Parameter settings for API request
+            val listServerGroupServersRequest = ListServerGroupServersRequest.builder()
+                .serverGroupId(groupId) // Request-level configuration rewrite, can set Http request parameters, etc.
+                // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                .nextToken(nextToken)
+                .build()
 
-        // Asynchronously get the return value of the API request
-        val response = client.listServerGroupServers(listServerGroupServersRequest)
+            // Asynchronously get the return value of the API request
+            val response = client.listServerGroupServers(listServerGroupServersRequest)
 
-        // Synchronously get the return value of the API request
-        val resp = response.get()
+            // Synchronously get the return value of the API request
+            val resp = response.get()
 
-        val servers = resp.body.servers
-        return servers ?: mutableListOf()
+            resp.body.servers?.let { list.addAll(it) }
+
+            if (resp.body.nextToken?.isNotBlank() == true) {
+                nextToken = resp.body.nextToken
+            } else
+                break
+        }
+
+        return list
     }
 
     private fun changeWeight(weightFunction: (ListServerGroupServersResponseBody.Servers) -> Int?) {
