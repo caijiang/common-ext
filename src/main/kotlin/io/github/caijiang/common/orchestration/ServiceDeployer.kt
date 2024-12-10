@@ -110,7 +110,7 @@ class ServiceDeployer(
                                 runIn("执行部署", {
                                     // TODO 环境暂不支持
                                     val cmd =
-                                        "${service.deployCommand} ${service.id} ${node.ip} ${node.port} ${deployment.imageUrl} ${deployment.imageTag}"
+                                        "${service.deployCommand} ${service.id} ${node.ip} ${node.port} ${deployment.imageUrl} ${deployment.imageTag} ${service.type ?: "\"\""}"
                                     log.trace("preparing to execute:{}", cmd)
                                     session.executeRemoteCommand(
                                         cmd,
