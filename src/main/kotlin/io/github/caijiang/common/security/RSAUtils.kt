@@ -50,7 +50,7 @@ object RSAUtils {
     }
 
     /**
-     * @since 0.1.0
+     * @since 1.3.0
      * @param key pem(pkcs8) 格式的rsa 密钥
      * @see readPrivateKeyFromPKCS8
      * @return KeyPair

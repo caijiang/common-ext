@@ -5,6 +5,8 @@
 不包含任何运行时依赖的常用扩展，尽可能提供你每个入口的运行依赖版本推荐。
 制品包含 2 个分支，一个是为 Java EE 构建另一个则会是 Jakarta EE
 
+查看[版本历史](https://github.com/caijiang/common-ext/releases)。
+
 ## 环境要求-Java-EE
 
 - java 8+
@@ -85,9 +87,3 @@ public class AnyConfigClass {
 #### 调试
 
 通过调整日志`io.github.caijiang.common.lock`的等级即可在日志中获取相关信息。
-
-## 版本历史
-
-### 0.1.0
-
-引入包 `io.github.caijiang.common.orchestration`和`io.github.caijiang.common.aliyun`
