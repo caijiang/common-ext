@@ -53,6 +53,14 @@ class TemplateTest : AbstractSpringTest() {
             .isSuccessResponse()
             .isNullResponse()
 
+        assertThatRequest(template, "/readNumber1")
+            .asJsonNodeAssert()
+            .hasNumberNode(1, false)
+            .hasNumberNodeNot(2, false)
+            .hasNumberNodeGe(1, false)
+            .hasNumberNodeGe(0, false)
+            .hasNumberNodeLe(1, false)
+            .hasNumberNodeLe(2, false)
     }
 
     @Test

@@ -8,7 +8,7 @@ import org.assertj.core.api.AbstractObjectAssert
 import org.assertj.core.api.Condition
 import org.assertj.core.api.EnumerableAssert
 import org.assertj.core.api.filter.FilterOperator
-import org.assertj.core.internal.Objects
+import org.assertj.core.internal.*
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.function.Predicate
@@ -142,6 +142,127 @@ abstract class AbstractJsonNodeAssert<SELF : AbstractJsonNodeAssert<SELF>>(
             objects.assertEqual(info, it.numberValue(), expected)
         }
         return this as SELF
+    }
+
+    fun hasNumberNodeNot(expected: Number, optional: Boolean, path: String): SELF {
+        return hasNumberNodeNot(expected, optional, {
+            it[path]
+        }, path)
+    }
+
+    fun hasNumberNodeNot(expected: Number, optional: Boolean, vararg path: Any): SELF {
+        return hasNumberNodeNot(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
+    }
+
+    fun hasNumberNodeNot(
+        expected: Number,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF {
+        info.description("field:%s not equals", fieldDescription)
+        val a = actual?.let(toNode)
+        if (!optional) {
+            objects.assertNotNull(info, a)
+        }
+        a?.let {
+            objects.assertNotEqual(info, it.numberValue(), expected)
+        }
+        return this as SELF
+    }
+
+    fun <T> hasNumberNodeLe(expected: T, optional: Boolean, path: String): SELF
+            where T : Number,
+                  T : Comparable<T> {
+        return hasNumberNodeLe(expected, optional, {
+            it[path]
+        }, path)
+    }
+
+    fun <T> hasNumberNodeLe(expected: T, optional: Boolean, vararg path: Any): SELF
+            where T : Number,
+                  T : Comparable<T> {
+        return hasNumberNodeLe(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
+    }
+
+    fun <T> hasNumberNodeLe(
+        expected: T,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF
+            where T : Number,
+                  T : Comparable<T> {
+        info.description("field:%s greater or equals", fieldDescription)
+        val a = actual?.let(toNode)
+        if (!optional) {
+            objects.assertNotNull(info, a)
+        }
+        a?.let {
+            numbersFor(expected).assertLessThanOrEqualTo(info, it.numberValue() as T, expected)
+        }
+        return this as SELF
+    }
+
+    fun <T> hasNumberNodeGe(expected: T, optional: Boolean, path: String): SELF
+            where T : Number,
+                  T : Comparable<T> {
+        return hasNumberNodeGe(expected, optional, {
+            it[path]
+        }, path)
+    }
+
+    fun <T> hasNumberNodeGe(expected: T, optional: Boolean, vararg path: Any): SELF
+            where T : Number,
+                  T : Comparable<T> {
+        return hasNumberNodeGe(expected, optional, path.toToNodeFunc(), path.toFieldDescription())
+    }
+
+    fun <T> hasNumberNodeGe(
+        expected: T,
+        optional: Boolean,
+        toNode: (JsonNode) -> JsonNode?,
+        fieldDescription: String
+    ): SELF
+            where T : Number,
+                  T : Comparable<T> {
+        info.description("field:%s greater or equals", fieldDescription)
+        val a = actual?.let(toNode)
+        if (!optional) {
+            objects.assertNotNull(info, a)
+        }
+        a?.let {
+            numbersFor(expected).assertGreaterThanOrEqualTo(info, it.numberValue() as T, expected)
+//            objects.assertNotEqual(info, it.numberValue(), expected)
+        }
+        return this as SELF
+    }
+
+    private fun <T> numbersFor(input: T): Numbers<T>
+            where T : Number,
+                  T : Comparable<T> {
+        if (input is BigDecimal) {
+            return BigDecimals.instance() as Numbers<T>
+        }
+        if (input is BigInteger) {
+            return BigIntegers.instance() as Numbers<T>
+        }
+        if (input is Double) {
+            return Doubles.instance() as Numbers<T>
+        }
+        if (input is Float) {
+            return Floats.instance() as Numbers<T>
+        }
+        if (input is Long) {
+            return Longs.instance() as Numbers<T>
+        }
+        if (input is Int) {
+            return Integers.instance() as Numbers<T>
+        }
+        if (input is Short) {
+            return Shorts.instance() as Numbers<T>
+        }
+        return Bytes.instance() as Numbers<T>
     }
 
     fun hasTextNode(expected: String, optional: Boolean, path: String): SELF {

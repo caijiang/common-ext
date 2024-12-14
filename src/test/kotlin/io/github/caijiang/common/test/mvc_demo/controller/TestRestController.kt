@@ -36,6 +36,10 @@ class TestRestController {
     @ResponseBody
     fun readString() = "String"
 
+    @GetMapping("/readNumber1")
+    @ResponseBody
+    fun readNumber1() = 1
+
     @GetMapping("/readList")
     @ResponseBody
     fun readList() = listOf(
