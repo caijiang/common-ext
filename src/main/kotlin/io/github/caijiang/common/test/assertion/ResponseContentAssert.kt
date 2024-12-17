@@ -149,12 +149,13 @@ open class ResponseContentAssert<
     }
 
     /**
+     * 失败了也可以有结果
      * @since 1.4.0
      * @see JsonNode
      * @return 转成JsnoNode断言
      */
     fun asJsonNodeAssert(): JSON_ASSERT {
-        isSuccessResponse()
+        isLegalResponse()
         return jsonAssertType.kotlin.constructors
             .find { it.parameters.size == 1 && it.parameters[0].type.classifier == JsonNode::class }
             ?.call(businessResult?.body) ?: throw IllegalArgumentException("no constructors find for $jsonAssertType¬")
