@@ -38,16 +38,19 @@ class WechatHelper(
         val response = SimpleHttpUtils.httpAccess(
             "https://api.weixin.qq.com/cgi-bin/stable_token",
             "POST",
-            mapOf("content-type" to "application/json; encoding=utf-8"),
-            objectMapper.writeValueAsBytes(
-                mapOf(
-                    "grant_type" to "client_credential",
-                    "appid" to account.appId,
-                    "secret" to account.secret,
-                    "force_refresh" to false
+            mapOf("content-type" to "application/json; encoding=utf-8")
+        ) {
+            it.setBinary(
+                objectMapper.writeValueAsBytes(
+                    mapOf(
+                        "grant_type" to "client_credential",
+                        "appid" to account.appId,
+                        "secret" to account.secret,
+                        "force_refresh" to false
+                    )
                 )
             )
-        )
+        }
 
         val root = readWechatResponse(response)
 
