@@ -1,6 +1,7 @@
 package io.github.caijiang.common.aliyun
 
 import com.aliyuncs.CommonRequest
+import com.aliyuncs.ecs.model.v20140526.DescribeInstancesResponse
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -9,6 +10,17 @@ import io.github.caijiang.common.Slf4j.Companion.log
 import io.github.caijiang.common.aliyun.model.LifecycleAction
 import io.github.caijiang.common.aliyun.model.LifecycleActionResult
 import io.github.caijiang.common.aliyun.model.ScalingActivity
+import io.github.caijiang.common.aliyun.tool.EciTool
+import io.github.caijiang.common.aliyun.tool.EcsTool
+
+private val DescribeInstancesResponse.Instance.intranetIp: String?
+    get() {
+        if (!this.innerIpAddress.isNullOrEmpty())
+            return innerIpAddress.first()
+        if (!vpcAttributes.privateIpAddress.isNullOrEmpty())
+            return vpcAttributes.privateIpAddress.first()
+        return null
+    }
 
 /**
  * 阿里云，伸缩活动，生命周期回调
@@ -72,6 +84,13 @@ object ScalingActivityLifecycleCallback {
         }
 
         return list.associateWith { workFor(locator, it) }
+    }
+
+    fun privateIPForInstanceId(locator: ResourceLocator, instanceId: String): String? {
+        if (instanceId.startsWith("eci-")) {
+            return EciTool.findDetail(locator, setOf(instanceId)).firstOrNull()?.intranetIp
+        }
+        return EcsTool.findDetail(locator, setOf(instanceId)).firstOrNull()?.intranetIp
     }
 
     // https://help.aliyun.com/zh/auto-scaling/developer-reference/api-completelifecycleaction?spm=a2c4g.11186623.help-menu-25855.d_5_0_0_14_5.6030736bH4npxq
