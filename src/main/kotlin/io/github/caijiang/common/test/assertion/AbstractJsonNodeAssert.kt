@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeType
 import org.assertj.core.api.AbstractListAssert
 import org.assertj.core.api.AbstractObjectAssert
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Condition
 import org.assertj.core.api.EnumerableAssert
 import org.assertj.core.api.filter.FilterOperator
@@ -199,7 +200,9 @@ abstract class AbstractJsonNodeAssert<SELF : AbstractJsonNodeAssert<SELF>>(
             objects.assertNotNull(info, a)
         }
         a?.let {
-            numbersFor(expected).assertLessThanOrEqualTo(info, it.numberValue() as T, expected)
+            assertThat(it.numberValue() as T)
+                .isLessThanOrEqualTo(expected)
+//            numbersFor(expected).assertLessThanOrEqualTo(info, it.numberValue() as T, expected)
         }
         return this as SELF
     }
@@ -232,7 +235,8 @@ abstract class AbstractJsonNodeAssert<SELF : AbstractJsonNodeAssert<SELF>>(
             objects.assertNotNull(info, a)
         }
         a?.let {
-            numbersFor(expected).assertGreaterThanOrEqualTo(info, it.numberValue() as T, expected)
+            assertThat(it.numberValue() as T).isGreaterThanOrEqualTo(expected)
+//            numbersFor(expected).assertGreaterThanOrEqualTo(info, it.numberValue() as T, expected)
 //            objects.assertNotEqual(info, it.numberValue(), expected)
         }
         return this as SELF

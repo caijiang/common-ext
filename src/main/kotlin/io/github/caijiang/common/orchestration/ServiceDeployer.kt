@@ -202,9 +202,14 @@ class ServiceDeployer(
 
                                     log.info("检查流量是否进入{}...", node.ip)
                                     entrances.forEach {
-                                        runIn("检查${it.ingressName}流量是否可以正常进入${node.ip}了", {
+                                        runIn("检查${it.ingressName}流量是否可以正常进入${node.ip}:${node.port}了", {
                                             while (true) {
-                                                log.trace("执行检查{}流量是否可以正常进入{}", it.ingressName, node.ip)
+                                                log.trace(
+                                                    "执行检查{}流量是否可以正常进入{}:{}",
+                                                    it.ingressName,
+                                                    node.ip,
+                                                    node.port
+                                                )
                                                 if (it.checkWorkStatus(node))
                                                     break
                                                 Thread.sleep(3000)
