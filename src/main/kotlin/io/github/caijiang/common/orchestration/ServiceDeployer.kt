@@ -4,6 +4,7 @@ import io.github.caijiang.common.Slf4j
 import io.github.caijiang.common.Slf4j.Companion.log
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.sshd.client.SshClient
+import org.apache.sshd.client.config.hosts.HostConfigEntry
 import org.apache.sshd.client.keyverifier.AcceptAllServerKeyVerifier
 import org.apache.sshd.client.session.ClientSession
 import java.nio.charset.StandardCharsets
@@ -23,6 +24,10 @@ class ServiceDeployer(
      */
     private val keyPair: Set<KeyPair>,
     /**
+     * https://en.wikibooks.org/wiki/OpenSSH/Cookbook/Proxies_and_Jump_Hosts
+     */
+    private val proxyJump: String? = null,
+    /**
      * 连接到 ssh 后执行的一些初始化动作
      */
     private val sshPrepareWork: ((session: ClientSession, node: ServiceNode, service: Service) -> Unit)? = null,
@@ -30,7 +35,13 @@ class ServiceDeployer(
      * 可定制的 ssh 连接器，其默认值就是直接连接
      */
     private val clientSessionFetcher: (SshClient, ServiceNode) -> ClientSession = { sshClient, node ->
-        sshClient.connect("root", node.ip, 22)
+        sshClient
+            .let {
+                if (proxyJump != null) {
+                    it.connect(HostConfigEntry("", node.ip, 22, "root", proxyJump))
+                } else
+                    it.connect("root", node.ip, 22)
+            }
             .verify(10000)
             .session
     }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.github.caijiang.common.Slf4j
 import io.github.caijiang.common.Slf4j.Companion.log
 import io.github.caijiang.common.aliyun.model.LifecycleAction
+import io.github.caijiang.common.aliyun.model.LifecycleActionResult
 import io.github.caijiang.common.aliyun.model.ScalingActivity
 
 /**
@@ -71,6 +72,26 @@ object ScalingActivityLifecycleCallback {
         }
 
         return list.associateWith { workFor(locator, it) }
+    }
+
+    // https://help.aliyun.com/zh/auto-scaling/developer-reference/api-completelifecycleaction?spm=a2c4g.11186623.help-menu-25855.d_5_0_0_14_5.6030736bH4npxq
+    fun completeLifecycleAction(
+        locator: ResourceLocator,
+        action: LifecycleAction,
+        result: LifecycleActionResult,
+        clientToken: String? = null
+    ): String? {
+        val request = Helper.commonEssRequest()
+        request.sysAction = "CompleteLifecycleAction"
+        request.putQueryParameter("RegionId", locator.region)
+        request.putQueryParameter("LifecycleHookId", action.hookId)
+        request.putQueryParameter("LifecycleActionToken", action.token)
+        request.putQueryParameter("LifecycleActionResult", result.name)
+        clientToken?.let {
+            request.putQueryParameter("ClientToken", it)
+        }
+
+        return Helper.executeCommonRequest(locator, request)
     }
 
     private fun workFor(locator: ResourceLocator, activity: ScalingActivity): List<LifecycleAction> {

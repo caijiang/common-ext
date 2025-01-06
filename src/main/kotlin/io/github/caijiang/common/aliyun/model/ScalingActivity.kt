@@ -13,8 +13,8 @@ data class ScalingActivity(
     val groupId: String,
     @JsonProperty("ScalingActivityId")
     val id: String,
-    @JsonProperty("Progress")
-    val progress: Double,
+//    这个数据 没有比有好
+//    val progress: Double,
     @JsonProperty("Description")
     val description: String,
     @JsonProperty("StartTime")

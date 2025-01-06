@@ -26,7 +26,7 @@ object Helper {
         )
     }
 
-    private fun commonDefaultAcsClientFrom(locator: ResourceLocator) = DefaultAcsClient(commonProfileFrom(locator))
+    fun commonDefaultAcsClientFrom(locator: ResourceLocator) = DefaultAcsClient(commonProfileFrom(locator))
 
     private fun credentialsProvider(locator: ResourceLocator): ICredentialProvider {
         return StaticCredentialProvider.create(
@@ -67,6 +67,8 @@ object Helper {
     fun executeCommonRequest(locator: ResourceLocator, request: CommonRequest): String? {
         val client = commonDefaultAcsClientFrom(locator)
         val response = client.getCommonResponse(request)
+
+        log.debug("Executed common request: {}:{}:{} ", request.sysAction, request.sysQueryParameters, response.data)
 
         if (!response.httpResponse.isSuccess) {
             log.debug("response.data:{}", response.data)

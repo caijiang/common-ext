@@ -14,5 +14,10 @@ data class LifecycleAction(
     @JsonProperty("LifecycleActionToken")
     val token: String,
     @JsonProperty("InstanceIds")
-    val instanceIds: List<String>,
+    val instanceIds: LifecycleActionInstances? = null,
+)
+
+data class LifecycleActionInstances(
+    @JsonProperty("InstanceId")
+    val instances: List<String> = emptyList(),
 )
