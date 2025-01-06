@@ -29,10 +29,17 @@ object OpenApiHelper {
             throw IllegalArgumentException("bad status: ${response.status}:${String(response.body ?: byteArrayOf())}")
         }
         // 不是 json
+        if (locator.api == NacosApiVersion.V1x) {
+            if (business == null) {
+                return null
+            }
+            return business(objectMapper.readTree(response.body))
+        }
         val root = objectMapper.readTree(response.body)
         if (root.isNull || !root.isObject) {
             throw IllegalArgumentException("bad response: ${String(response.body ?: byteArrayOf())}")
         }
+        log.debug("response json: {}", root)
         val code = root["code"]
         val message = root["message"]
 
@@ -62,12 +69,25 @@ object OpenApiHelper {
         port: Int,
         otherData: Map<String, Any?>? = null
     ) {
+        //
+        val uri = if (locator.api == NacosApiVersion.V1x) {
+            "/nacos/v1/ns/instance"
+        } else {
+            "/nacos/v2/ns/instance"
+        }
         work<Any>(locator, { s ->
             SimpleHttpUtils.httpAccess(
-                urlFor(locator, "/nacos/v2/ns/instance", s), "PUT", requestBody = {
+                urlFor(locator, uri, s), "PUT", requestBody = {
                     it.setContentType("application/x-www-form-urlencoded")
                     val allData =
-                        (otherData ?: mapOf()) + ("ip" to ip) + ("serviceName" to serviceName) + ("port" to port)
+                        (otherData ?: mapOf()) + mapOf(
+                            "ip" to ip,
+                            "serviceName" to serviceName,
+                            "port" to port,
+                            "groupName" to locator.groupName,
+                            "clusterName" to locator.clusterName,
+                            "namespaceId" to locator.namespaceId,
+                        )
                     it.setParametersFromMap(allData)
                 }
             )
@@ -78,11 +98,16 @@ object OpenApiHelper {
      * 查询指定服务的实例列表
      */
     fun listInstances(locator: ResourceLocator, serviceName: String): ArrayNode? {
+        val uri = if (locator.api == NacosApiVersion.V1x) {
+            "/nacos/v1/ns/instance/list"
+        } else {
+            "/nacos/v2/ns/instance/list"
+        }
         return work(locator, {
             SimpleHttpUtils.httpAccess(
                 urlFor(
-                    locator, "/nacos/v2/ns/instance/list", it, mapOf(
-                        "serviceName" to serviceName
+                    locator, uri, it, mapOf(
+                        "serviceName" to serviceName,
                     )
                 )
             )
@@ -119,7 +144,9 @@ object OpenApiHelper {
         val preferences = Preferences.userNodeForPackage(OpenApiHelper::class.java)
         val prefix = locator.serverAddr + "_" + locator.auth.username
         val tokenInPreferences = preferences.get("${prefix}_token", "")
-        if (System.currentTimeMillis() > preferences.getLong("${prefix}_dead", 0) || tokenInPreferences.trim()
+        val tokeInValid = System.currentTimeMillis() > preferences.getLong("${prefix}_dead", 0)
+//        val tokeInValid = true
+        if (tokeInValid || tokenInPreferences.trim()
                 .isEmpty()
         ) {
             // 重新搞
@@ -151,6 +178,25 @@ object OpenApiHelper {
             return accessToken.asText()
         }
         return tokenInPreferences
+    }
+
+    fun describeService(locator: ResourceLocator, serviceName: String) {
+        val uri = if (locator.api == NacosApiVersion.V1x) {
+            "/nacos/v1/ns/service"
+        } else {
+            "/nacos/v2/ns/service"
+        }
+        work(locator, {
+            SimpleHttpUtils.httpAccess(
+                urlFor(
+                    locator, uri, it, mapOf(
+                        "serviceName" to serviceName
+                    )
+                ),
+            )
+        }, {
+            log.debug("describe service: {}", it)
+        })
     }
 
 }

@@ -25,6 +25,9 @@ class AlbServerGroup(
      */
     private val listenerId: String? = null,
 ) : IngressEntrance {
+    override val ingressName: String
+        get() = "阿里云ALB服务器组($groupId)"
+
     override fun suspendNode(serviceNode: ServiceNode) {
         val ecs = serviceNode as? EcsNodeInAlbGroup ?: return
         if (ecs.weight <= 0) {

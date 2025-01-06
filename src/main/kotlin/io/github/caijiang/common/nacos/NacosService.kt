@@ -10,8 +10,10 @@ import io.github.caijiang.common.orchestration.ServiceNode
  */
 class NacosService(
     private val serviceName: String,
-    private val locator: ResourceLocator
+    private val locator: ResourceLocator,
 ) : IngressEntrance {
+    override val ingressName: String
+        get() = "nacos"
 
     override fun suspendNode(serviceNode: ServiceNode) {
         OpenApiHelper.changeInstance(locator, serviceName, serviceNode.ip, serviceNode.port, mapOf("enabled" to false))
@@ -30,6 +32,7 @@ class NacosService(
     }
 
     override fun discoverNodes(service: Service): List<ServiceNode> {
+        OpenApiHelper.describeService(locator, serviceName)
         return listOf()
     }
 }

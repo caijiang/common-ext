@@ -40,4 +40,9 @@ interface Service {
      * 健康检查机制
      */
     val healthCheck: HealthCheck
+
+    /**
+     * 环境变量
+     */
+    val environment: Map<String, String>?
 }

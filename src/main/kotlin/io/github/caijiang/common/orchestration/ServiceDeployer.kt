@@ -23,6 +23,10 @@ class ServiceDeployer(
      */
     private val keyPair: Set<KeyPair>,
     /**
+     * 连接到 ssh 后执行的一些初始化动作
+     */
+    private val sshPrepareWork: ((session: ClientSession, node: ServiceNode, service: Service) -> Unit)? = null,
+    /**
      * 可定制的 ssh 连接器，其默认值就是直接连接
      */
     private val clientSessionFetcher: (SshClient, ServiceNode) -> ClientSession = { sshClient, node ->
@@ -75,6 +79,9 @@ class ServiceDeployer(
                             session.auth().verify(10000)
                             log.debug("ssh login successful")
 
+                            log.debug("prepare ssh")
+                            sshPrepareWork?.let { it(session, node, service) }
+
                             log.info("开始依赖环境检查，包括权限，基础设施等...")
                             environmentCheck(session, node, service)
 
@@ -88,10 +95,10 @@ class ServiceDeployer(
                                 if (!il) {
                                     log.info("停止流量进入{}...", node.ip)
                                     entrances.forEach {
-                                        runIn("停止流量进入${node.ip}", {
+                                        runIn("停止${it.ingressName}流量进入${node.ip}", {
                                             while (true) {
                                                 try {
-                                                    log.trace("执行停止流量进入{}", node.ip)
+                                                    log.trace("执行停止{}流量进入{}", it.ingressName, node.ip)
                                                     it.suspendNode(node)
                                                     break
                                                 } catch (e: Exception) {
@@ -122,9 +129,16 @@ class ServiceDeployer(
 
                                 log.info("执行部署指令...")
                                 runIn("执行部署", {
-                                    // TODO 环境暂不支持
+                                    val withEnv = service.environment?.let { stringStringMap ->
+                                        stringStringMap.entries
+                                            .filter { it.key.isNotEmpty() && it.value.isNotEmpty() }
+                                            .joinToString("") {
+                                                " ${it.key} ${it.value}"
+                                            }
+                                    } ?: ""
+
                                     val cmd =
-                                        "${service.deployCommand} ${service.id} ${node.ip} ${node.port} ${deployment.imageUrl} ${deployment.imageTag} ${service.type ?: "\"\""}"
+                                        "${service.deployCommand} ${service.id} ${node.ip} ${node.port} ${deployment.imageUrl} ${deployment.imageTag} ${service.type ?: "\"\""}$withEnv"
                                     log.trace("preparing to execute:{}", cmd)
                                     session.executeRemoteCommand(
                                         cmd,
@@ -160,10 +174,10 @@ class ServiceDeployer(
                                 if (!il) {
                                     log.info("恢复流量进入{}...", node.ip)
                                     entrances.forEach {
-                                        runIn("恢复流量进入${node.ip}", {
+                                        runIn("恢复${it.ingressName}流量进入${node.ip}", {
                                             while (true) {
                                                 try {
-                                                    log.trace("执行恢复流量进入{}", node.ip)
+                                                    log.trace("执行恢复{}流量进入{}", it.ingressName, node.ip)
                                                     it.resumedNode(node)
                                                     break
                                                 } catch (e: Exception) {
@@ -177,9 +191,9 @@ class ServiceDeployer(
 
                                     log.info("检查流量是否进入{}...", node.ip)
                                     entrances.forEach {
-                                        runIn("检查流量是否可以正常进入${node.ip}了", {
+                                        runIn("检查${it.ingressName}流量是否可以正常进入${node.ip}了", {
                                             while (true) {
-                                                log.trace("执行检查流量是否可以正常进入{}", node.ip)
+                                                log.trace("执行检查{}流量是否可以正常进入{}", it.ingressName, node.ip)
                                                 if (it.checkWorkStatus(node))
                                                     break
                                                 Thread.sleep(3000)

@@ -66,6 +66,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     compileOnly("org.springframework.boot:spring-boot:$springBootVersion")
     compileOnly("org.slf4j:slf4j-api:2.0.9")
+    compileAndTest("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     // test required
     testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -125,8 +126,9 @@ dependencies {
     compileAndTest("org.springframework.data:spring-data-jpa:$springDataVersion")
 
     // aliyun
-    compileAndTest("org.apache.sshd:sshd-core:2.3.0")
+    compileAndTest("org.apache.sshd:sshd-core:2.14.0")
     compileAndTest("com.aliyun:alibabacloud-alb20200616:1.0.13")
+    compileAndTest("com.aliyun:aliyun-java-sdk-core:4.6.0")
 }
 
 tasks.test {

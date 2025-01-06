@@ -28,6 +28,7 @@ data class ResourceLocator(
      * 集群名称，默认为`DEFAULT`
      */
     val clusterName: String? = null,
+    val api: NacosApiVersion = NacosApiVersion.V23,
 )
 
 data class AuthData(

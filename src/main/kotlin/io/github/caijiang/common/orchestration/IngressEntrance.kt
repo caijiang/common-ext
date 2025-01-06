@@ -6,6 +6,11 @@ package io.github.caijiang.common.orchestration
  */
 interface IngressEntrance : NodeDiscoverer {
     /**
+     * 流量名称
+     */
+    val ingressName: String
+
+    /**
      * 暂停将流量进入这个节点
      */
     fun suspendNode(serviceNode: ServiceNode)

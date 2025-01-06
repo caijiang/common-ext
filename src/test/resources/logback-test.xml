@@ -10,6 +10,8 @@
 
     <logger name="io.github.caijiang.common.aliyun" level="debug"/>
     <logger name="io.github.caijiang.common.orchestration.ServiceDeployer" level="trace"/>
+    <logger name="io.github.caijiang.common.http" level="trace"/>
+    <logger name="io.github.caijiang.common.nacos" level="debug"/>
 
     <root level="info">
         <appender-ref ref="STDOUT"/>
