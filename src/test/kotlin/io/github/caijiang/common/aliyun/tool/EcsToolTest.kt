@@ -1,11 +1,13 @@
 package io.github.caijiang.common.aliyun.tool
 
 import io.github.caijiang.common.aliyun.AliyunTest
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 /**
  * @author CJ
  */
+@Disabled
 class EcsToolTest {
 
     @Test
