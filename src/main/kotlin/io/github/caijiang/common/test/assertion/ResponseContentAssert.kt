@@ -150,7 +150,7 @@ open class ResponseContentAssert<
 
     /**
      * 失败了也可以有结果
-     * @since 1.4.0
+     * @since 2.0.0
      * @see JsonNode
      * @return 转成JsnoNode断言
      */
