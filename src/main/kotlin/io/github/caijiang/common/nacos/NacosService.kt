@@ -54,7 +54,9 @@ class NacosService(
             })
         }
         return list?.filter {
-            it.ip == node.ip && it.port == node.port
+            it.ip == node.ip
+//            TODO 其实不太优雅的
+//                    && it.port == node.port
         }?.any {
             it.work()
         } == true
