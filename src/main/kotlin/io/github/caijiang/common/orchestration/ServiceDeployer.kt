@@ -10,6 +10,7 @@ import org.apache.sshd.client.session.ClientSession
 import java.nio.charset.StandardCharsets
 import java.rmi.RemoteException
 import java.security.KeyPair
+import java.time.Duration
 import java.util.concurrent.*
 
 
@@ -31,6 +32,10 @@ class ServiceDeployer(
      * 连接到 ssh 后执行的一些初始化动作
      */
     private val sshPrepareWork: ((session: ClientSession, node: ServiceNode, service: Service) -> Unit)? = null,
+    /**
+     * 在暂停服务流量进入了，先行等待一段时间
+     */
+    private val sleepAfterSuspend: Duration? = null,
     /**
      * 可定制的 ssh 连接器，其默认值就是直接连接
      */
@@ -122,6 +127,10 @@ class ServiceDeployer(
                                     }
                                     log.debug("检查流量是否已经走完")
                                     runIn("检查流量是否走完", {
+                                        sleepAfterSuspend?.let {
+                                            log.info("检查具体流量前，先等上:{}", it)
+                                            Thread.sleep(it.toMillis())
+                                        }
                                         while (true) {
                                             try {
                                                 val cmd = "ss -an |grep \"${node.ip}:${node.port}\"|grep ESTAB"
@@ -135,7 +144,7 @@ class ServiceDeployer(
                                             }
                                         }
 
-                                    }, 3, TimeUnit.MINUTES)
+                                    }, 4, TimeUnit.MINUTES)
                                 }
 
                                 log.info("执行部署指令...")
