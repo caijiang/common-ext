@@ -35,6 +35,33 @@ class NacosServiceTest {
         caseFor(nacosService, targetNode)
     }
 
+    /**
+     * 在线的一个 demo
+     */
+    @Test
+    fun forOnlineDemo() {
+        val targetNode = object : ServiceNode {
+            override val ip: String
+                get() = "172.16.208.89"
+            override val port: Int
+                get() = 8080
+            override val ingressLess: Boolean
+                get() = false
+        }
+
+        val nacosService = NacosService(
+            "ph-spring-boot-demo-base-8",
+            ResourceLocator(
+                "mse-c8251100-nacos-ans.mse.aliyuncs.com:8848",
+                null,
+                api = NacosApiVersion.V23,
+                namespaceId = "bb7b30b2-202e-41e8-90fc-8a1f69ad9332"
+            ),
+        )
+
+        caseFor(nacosService, targetNode)
+    }
+
     private fun fetchResourceLocator(): AuthData {
         val data = Yaml().load<Map<String, String>>(ClassPathResource("local-nacos-data.yaml").inputStream)
         return AuthData(
