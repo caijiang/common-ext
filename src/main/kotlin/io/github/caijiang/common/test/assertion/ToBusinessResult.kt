@@ -35,7 +35,9 @@ object StdToBusinessResult : ToBusinessResult {
     }
 
     private fun readyBody(entity: ResponseEntity<String>): JsonNode {
-        if (entity.headers.contentType?.isCompatibleWith(MediaType.APPLICATION_JSON) == true) {
+        if (entity.headers.contentType?.isCompatibleWith(MediaType.APPLICATION_JSON) == true
+            || entity.headers.contentType?.isCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON) == true
+        ) {
             return objectMapper.readTree(entity.body)
         }
         if (entity.headers.contentType?.isCompatibleWith(MediaType.TEXT_PLAIN) == true) {
