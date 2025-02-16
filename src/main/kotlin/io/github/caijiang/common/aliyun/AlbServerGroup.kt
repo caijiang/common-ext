@@ -8,7 +8,9 @@ import io.github.caijiang.common.orchestration.IngressEntrance
 import io.github.caijiang.common.orchestration.Service
 import io.github.caijiang.common.orchestration.ServiceNode
 
-
+private val albProduct = "alb" to {
+    AsyncClient.builder()
+}
 /**
  * 阿里云的 alb 服务器组
  * @author CJ
@@ -60,7 +62,7 @@ class AlbServerGroup(
             log.debug("刚刚尝试了恢复流量，阿里云反应迟钝，这里暂停 一分钟再检查流量状态")
             Thread.sleep(60000)
         }
-        Helper.createClientForProduct("alb", locator)
+        Helper.createClientForProduct(albProduct, locator)
             .use { client ->
                 var nextToken: String? = null
                 val list = mutableListOf<GetListenerHealthStatusResponseBody.ServerGroupInfos>()
@@ -101,7 +103,7 @@ class AlbServerGroup(
     private val lastList: MutableList<EcsNodeInAlbGroup> = mutableListOf()
 
     override fun discoverNodes(service: Service): List<ServiceNode> {
-        return Helper.createClientForProduct("alb", locator)
+        return Helper.createClientForProduct(albProduct, locator)
             .use { client ->
                 val servers = readServers(client)
                 val list = servers
@@ -154,7 +156,7 @@ class AlbServerGroup(
     }
 
     private fun changeWeight(weightFunction: (ListServerGroupServersResponseBody.Servers) -> Int?) {
-        Helper.createClientForProduct("alb", locator)
+        Helper.createClientForProduct(albProduct, locator)
             .use { client ->
                 val servers = readServers(client)
 

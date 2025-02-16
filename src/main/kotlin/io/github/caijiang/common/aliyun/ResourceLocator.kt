@@ -5,10 +5,11 @@ package io.github.caijiang.common.aliyun
  * @author CJ
  */
 data class ResourceLocator(
-    val accessKeyId: String,
-    val accessKeySecret: String,
+    val accessKeyId: String?,
+    val accessKeySecret: String?,
     /**
      * 工作区域
      */
     val region: String,
+    val securityToken: String? = null
 )
