@@ -19,5 +19,11 @@
 
     </root>
 
+    <!--    为了让 ServiceDeployer 测试 日志看起来更舒服-->
+    <logger name="org.apache.sshd.common.util.security.bouncycastle" level="warn"/>
+    <logger name="org.apache.sshd.common.io" level="warn"/>
+    <logger name="org.apache.sshd.client.config.hosts" level="warn"/>
+    <logger name="org.apache.sshd.client.keyverifier.AcceptAllServerKeyVerifier" level="error"/>
+
 
 </configuration>

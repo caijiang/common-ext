@@ -3,14 +3,16 @@ package io.github.caijiang.common.aliyun
 import com.aliyun.sdk.service.alb20200616.AsyncClient
 import com.aliyun.sdk.service.alb20200616.models.*
 import io.github.caijiang.common.Slf4j
-import io.github.caijiang.common.Slf4j.Companion.log
+import io.github.caijiang.common.logging.LoggingApi
 import io.github.caijiang.common.orchestration.IngressEntrance
 import io.github.caijiang.common.orchestration.Service
 import io.github.caijiang.common.orchestration.ServiceNode
+import org.springframework.boot.logging.LogLevel
 
 private val albProduct = "alb" to {
     AsyncClient.builder()
 }
+
 /**
  * 阿里云的 alb 服务器组
  * @author CJ
@@ -30,36 +32,36 @@ class AlbServerGroup(
     override val ingressName: String
         get() = "阿里云ALB服务器组($groupId)"
 
-    override fun suspendNode(serviceNode: ServiceNode) {
+    override fun suspendNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
         val ecs = serviceNode as? EcsNodeInAlbGroup ?: return
         if (ecs.weight <= 0) {
-            log.info("{} 本身就没有流量，无需暂停", ecs.serverIp)
+            loggingApi.logMessage(LogLevel.INFO, "${ecs.serverIp} 本身就没有流量，无需暂停")
             return
         }
-        changeWeight {
+        changeWeight(loggingApi) {
             if (it.serverId == ecs.serverId) 0 else null
         }
     }
 
     private var justResumed = false
 
-    override fun resumedNode(serviceNode: ServiceNode) {
+    override fun resumedNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
         val ecs = serviceNode as? EcsNodeInAlbGroup ?: return
         val weight = lastList.filter { it.serverId == ecs.serverId }.map { it.weight }.firstOrNull() ?: return
-        changeWeight {
+        changeWeight(loggingApi) {
             if (it.serverId == ecs.serverId) weight else null
         }
         justResumed = true
     }
 
-    override fun checkWorkStatus(node: ServiceNode): Boolean {
+    override fun checkWorkStatus(node: ServiceNode, loggingApi: LoggingApi): Boolean {
         if (listenerId == null) {
-            log.debug("服务器组:{} 没有关联监听，无法获知是否正常工作", groupId)
+            loggingApi.logMessage(LogLevel.WARN, "服务器组:${groupId} 没有关联监听，无法获知是否正常工作")
             return true
         }
         if (justResumed) {
             justResumed = false
-            log.debug("刚刚尝试了恢复流量，阿里云反应迟钝，这里暂停 一分钟再检查流量状态")
+            loggingApi.logMessage(LogLevel.DEBUG, "刚刚尝试了恢复流量，阿里云反应迟钝，这里暂停 一分钟再检查流量状态")
             Thread.sleep(60000)
         }
         Helper.createClientForProduct(albProduct, locator)
@@ -91,7 +93,7 @@ class AlbServerGroup(
                     .flatMap { it.nonNormalServers }
                     .filter { it.serverIp == node.ip }
                     .onEach {
-                        log.debug("ip:{}, status:{}, reason:{}", node.ip, it.status, it.reason)
+                        loggingApi.logMessage(LogLevel.DEBUG, "ip:${node.ip}, status:${it.status}, reason:${it.reason}")
                     }
                     .count() == 0
                 //
@@ -155,13 +157,16 @@ class AlbServerGroup(
         return list
     }
 
-    private fun changeWeight(weightFunction: (ListServerGroupServersResponseBody.Servers) -> Int?) {
+    private fun changeWeight(
+        loggingApi: LoggingApi,
+        weightFunction: (ListServerGroupServersResponseBody.Servers) -> Int?
+    ) {
         Helper.createClientForProduct(albProduct, locator)
             .use { client ->
                 val servers = readServers(client)
 
                 if (servers.all { weightFunction(it) == null }) {
-                    log.debug("没有任何节点符合当前服务器组")
+                    loggingApi.logMessage(LogLevel.DEBUG, "没有任何节点符合当前服务器组")
                     return
                 }
 

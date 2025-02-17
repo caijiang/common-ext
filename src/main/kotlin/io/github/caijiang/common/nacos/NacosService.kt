@@ -1,9 +1,10 @@
 package io.github.caijiang.common.nacos
 
-import io.github.caijiang.common.Slf4j.Companion.log
+import io.github.caijiang.common.logging.LoggingApi
 import io.github.caijiang.common.orchestration.IngressEntrance
 import io.github.caijiang.common.orchestration.Service
 import io.github.caijiang.common.orchestration.ServiceNode
+import org.springframework.boot.logging.LogLevel
 import java.time.Duration
 
 /**
@@ -21,7 +22,7 @@ class NacosService(
     override val ingressName: String
         get() = "nacos"
 
-    override fun suspendNode(serviceNode: ServiceNode) {
+    override fun suspendNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
         OpenApiHelper.changeInstance(locator, serviceName, serviceNode.ip, serviceNode.port, mapOf("enabled" to false))
         waitAfterSuspend?.let {
             Thread.sleep(it.toMillis())
@@ -37,22 +38,24 @@ class NacosService(
         suspendNode(target)
     }
 
-    override fun resumedNode(serviceNode: ServiceNode) {
+    override fun resumedNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
         OpenApiHelper.changeInstance(locator, serviceName, serviceNode.ip, serviceNode.port, mapOf("enabled" to true))
     }
 
-    override fun checkWorkStatus(node: ServiceNode): Boolean {
+    override fun checkWorkStatus(node: ServiceNode, loggingApi: LoggingApi): Boolean {
         val list = jsonNodeAsServiceNodes()
-        if (log.isTraceEnabled) {
-            log.trace("checkWorkStatus:{}:{}", node.ip, node.port)
-            log.trace("fact list:{}", list?.map {
-                mapOf(
-                    "ip" to it.ip,
-                    "port" to it.port,
-                    "work" to it.work(),
-                )
-            })
-        }
+        loggingApi.logMessage(LogLevel.TRACE, "checkWorkStatus:${node.ip}:${node.port}")
+        loggingApi.logMessage(
+            LogLevel.TRACE, "fact list:${
+                list?.map {
+                    mapOf(
+                        "ip" to it.ip,
+                        "port" to it.port,
+                        "work" to it.work(),
+                    )
+                }
+            }"
+        )
         return list?.filter {
             it.ip == node.ip
 //            TODO 其实不太优雅的
