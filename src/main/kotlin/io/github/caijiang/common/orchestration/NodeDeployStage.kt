@@ -40,4 +40,9 @@ enum class NodeDeployStage {
      * 检查可用以及结束
      */
     Post,
+
+    /**
+     * 并非一个阶段，而是一个完成的事件
+     */
+    Done,
 }

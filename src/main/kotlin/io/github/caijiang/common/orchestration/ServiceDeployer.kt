@@ -325,6 +325,7 @@ class ServiceDeployer(
 
                         }
                 }
+            nodeStageChanger(node, NodeDeployStage.Done)
         }
 
         logForService.logMessage(LogLevel.INFO, "${service.id}已完成部署", null)
