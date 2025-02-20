@@ -23,6 +23,7 @@ class NacosService(
         get() = "nacos"
 
     override fun suspendNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
+        loggingApi.logMessage(LogLevel.TRACE, "执行停止nacos流量进入")
         OpenApiHelper.changeInstance(locator, serviceName, serviceNode.ip, serviceNode.port, mapOf("enabled" to false))
         waitAfterSuspend?.let {
             Thread.sleep(it.toMillis())
@@ -39,6 +40,7 @@ class NacosService(
     }
 
     override fun resumedNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
+        loggingApi.logMessage(LogLevel.TRACE, "执行恢复nacos流量进入")
         OpenApiHelper.changeInstance(locator, serviceName, serviceNode.ip, serviceNode.port, mapOf("enabled" to true))
     }
 
