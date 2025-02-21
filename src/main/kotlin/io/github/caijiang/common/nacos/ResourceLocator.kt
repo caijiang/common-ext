@@ -15,6 +15,7 @@ data class ResourceLocator(
     /**
      * 自行设定 token
      */
+    @Deprecated("NO")
     val accessToken: String? = null,
     /**
      * 命名空间Id，默认为`public`
@@ -28,7 +29,10 @@ data class ResourceLocator(
      * 集群名称，默认为`DEFAULT`
      */
     val clusterName: String? = null,
+    @Deprecated("NO")
     val api: NacosApiVersion = NacosApiVersion.V23,
+    val accessKey: String? = null,
+    val secretKey: String? = null,
 )
 
 data class AuthData(

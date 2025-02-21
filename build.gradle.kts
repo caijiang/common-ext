@@ -131,6 +131,9 @@ dependencies {
     compileAndTest("com.aliyun:aliyun-java-sdk-core:4.6.0")
     compileAndTest("com.aliyun:aliyun-java-sdk-eci:1.5.6")
     compileAndTest("com.aliyun:aliyun-java-sdk-ecs:4.6.0")
+
+    // nacos
+    compileAndTest("com.alibaba.nacos:nacos-client:2.5.0")
 }
 
 tasks.test {

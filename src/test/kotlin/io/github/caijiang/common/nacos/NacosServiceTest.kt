@@ -15,11 +15,14 @@ import kotlin.test.Test
 @Disabled
 class NacosServiceTest {
 
+    /**
+     * 本地开发环境的测试
+     */
     @Test
     fun forLocal() {
         val targetNode = object : ServiceNode {
             override val ip: String
-                get() = "192.168.2.37"
+                get() = "10.0.3.6"
             override val port: Int
                 get() = 8080
             override val ingressLess: Boolean
@@ -29,7 +32,12 @@ class NacosServiceTest {
 
         val nacosService = NacosService(
             "ph-spring-boot-demo-base-8",
-            ResourceLocator("localhost:8848")
+            ResourceLocator(
+                "192.168.16.208:8848",
+                fetchResourceLocator("local-nacos-data-dev.yaml"),
+                api = NacosApiVersion.V1x,
+                namespaceId = "dev"
+            ),
         )
 
         caseFor(nacosService, targetNode)
@@ -42,7 +50,7 @@ class NacosServiceTest {
     fun forOnlineDemo() {
         val targetNode = object : ServiceNode {
             override val ip: String
-                get() = "172.16.208.89"
+                get() = "172.17.0.8"
             override val port: Int
                 get() = 8080
             override val ingressLess: Boolean
@@ -53,23 +61,27 @@ class NacosServiceTest {
             "ph-spring-boot-demo-base-8",
             ResourceLocator(
                 "mse-c8251100-nacos-ans.mse.aliyuncs.com:8848",
-                null,
                 api = NacosApiVersion.V23,
-                namespaceId = "bb7b30b2-202e-41e8-90fc-8a1f69ad9332"
+                namespaceId = "dev",
+                accessKey = fetchResourceLocator("local-nacos-data-online.yaml").username,
+                secretKey = fetchResourceLocator("local-nacos-data-online.yaml").password
             ),
         )
 
         caseFor(nacosService, targetNode)
     }
 
-    private fun fetchResourceLocator(): AuthData {
-        val data = Yaml().load<Map<String, String>>(ClassPathResource("local-nacos-data.yaml").inputStream)
+    private fun fetchResourceLocator(path: String = "local-nacos-data.yaml"): AuthData {
+        val data = Yaml().load<Map<String, String>>(ClassPathResource(path).inputStream)
         return AuthData(
             username = data["username"].toString(),
             password = data["password"].toString(),
         )
     }
 
+    /**
+     * 经典生产环境
+     */
     @Test
     fun forPhOnline() {
         val targetNode = object : ServiceNode {
@@ -116,6 +128,8 @@ class NacosServiceTest {
         while (true) {
             try {
                 nacosService.suspendNode(targetNode)
+                println("已暂停流量，请观察")
+                Thread.sleep(3000)
                 break
             } catch (e: Exception) {
                 Thread.sleep(3000)
@@ -126,6 +140,8 @@ class NacosServiceTest {
         while (true) {
             try {
                 nacosService.resumedNode(targetNode)
+                println("已恢复流量，请观察")
+                Thread.sleep(3000)
                 break
             } catch (e: Exception) {
                 Thread.sleep(3000)
