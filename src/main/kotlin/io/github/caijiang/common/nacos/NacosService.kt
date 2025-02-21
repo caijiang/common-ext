@@ -52,13 +52,23 @@ class NacosService(
         ?: if (optional) {
             loggingApi.logMessage(LogLevel.WARN, "没有在 nacos 找到符合:${serviceNode.ip} 的节点，按照策略跳过")
             return
-        } else throw IllegalStateException("找不到目标节点")
+        } else {
+            loggingApi.logMessage(
+                LogLevel.TRACE,
+                "目标节点为${serviceNode.ip}，但我们找到的是:${allInstances.toMutableList()}"
+            )
+            loggingApi.logMessage(LogLevel.DEBUG, "虽然没有找到，根据之前的记录强行执行")
+            NamingMaintainFactory.createMaintainService(properties)
+                .updateInstance(serviceName, (serviceNode as NacosServiceNode).instance.apply(block))
+            return
+        }
 
+        loggingApi.logMessage(LogLevel.DEBUG, "在nacos找到目标节点，执行业务操作")
         NamingMaintainFactory.createMaintainService(properties).updateInstance(serviceName, target.apply(block))
     }
 
     override fun suspendNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
-        loggingApi.logMessage(LogLevel.TRACE, "执行停止nacos流量进入")
+//        loggingApi.logMessage(LogLevel.TRACE, "执行停止nacos流量进入")
 
         changeInstance(serviceNode, loggingApi) {
             this.isEnabled = false
@@ -66,7 +76,7 @@ class NacosService(
     }
 
     override fun resumedNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
-        loggingApi.logMessage(LogLevel.TRACE, "执行恢复nacos流量进入")
+//        loggingApi.logMessage(LogLevel.TRACE, "执行恢复nacos流量进入")
 
         changeInstance(serviceNode, loggingApi, false) {
             this.isEnabled = true
@@ -100,17 +110,16 @@ class NacosService(
     override fun discoverNodes(service: Service): List<ServiceNode> {
         return NamingFactory.createNamingService(properties).getAllInstances(serviceName)
             .map {
-                val self = it
-                object : ServiceNode {
-                    override val ip: String
-                        get() = self.ip
-                    override val port: Int
-                        get() = self.port
-                    override val ingressLess: Boolean
-                        get() = !self.isEnabled
-                }
+                NacosServiceNode(it)
             }
     }
+
+    class NacosServiceNode(
+        val instance: Instance,
+        override val ip: String = instance.ip,
+        override val port: Int = instance.port,
+        override val ingressLess: Boolean = !instance.isEnabled,
+    ) : ServiceNode
 }
 
 private fun Instance.work(): Boolean {
