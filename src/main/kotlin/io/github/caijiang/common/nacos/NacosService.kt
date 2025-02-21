@@ -44,11 +44,20 @@ class NacosService(
     override val ingressName: String
         get() = "nacos"
 
-    private fun changeInstance(serviceNode: ServiceNode, block: Instance.() -> Unit) {
+    private fun changeInstance(
+        serviceNode: ServiceNode,
+        loggingApi: LoggingApi,
+        optional: Boolean = true,
+        block: Instance.() -> Unit
+    ) {
         val allInstances = NamingFactory.createNamingService(properties).getAllInstances(serviceName)
         val target = allInstances.find {
             it.ip == serviceNode.ip && it.port == serviceNode.port
-        } ?: allInstances.find { it.ip == serviceNode.ip } ?: throw IllegalStateException("找不到目标节点")
+        } ?: allInstances.find { it.ip == serviceNode.ip }
+        ?: if (optional) {
+            loggingApi.logMessage(LogLevel.WARN, "没有在 nacos 找到符合:${serviceNode.ip} 的节点，按照策略跳过")
+            return
+        } else throw IllegalStateException("找不到目标节点")
 
         NamingMaintainFactory.createMaintainService(properties).updateInstance(serviceName, target.apply(block))
     }
@@ -56,7 +65,7 @@ class NacosService(
     override fun suspendNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
         loggingApi.logMessage(LogLevel.TRACE, "执行停止nacos流量进入")
 
-        changeInstance(serviceNode) {
+        changeInstance(serviceNode, loggingApi) {
             this.isEnabled = false
         }
 
@@ -68,7 +77,7 @@ class NacosService(
     override fun resumedNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
         loggingApi.logMessage(LogLevel.TRACE, "执行恢复nacos流量进入")
 
-        changeInstance(serviceNode) {
+        changeInstance(serviceNode, loggingApi, false) {
             this.isEnabled = true
         }
     }
