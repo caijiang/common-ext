@@ -9,7 +9,6 @@ import io.github.caijiang.common.orchestration.IngressEntrance
 import io.github.caijiang.common.orchestration.Service
 import io.github.caijiang.common.orchestration.ServiceNode
 import org.springframework.boot.logging.LogLevel
-import java.time.Duration
 import java.util.*
 
 /**
@@ -19,10 +18,6 @@ import java.util.*
 class NacosService(
     private val serviceName: String,
     private val locator: ResourceLocator,
-    /**
-     * 在挂起后，等待的时间
-     */
-    private val waitAfterSuspend: Duration? = null,
 ) : IngressEntrance {
     private val properties = Properties().apply {
         this[PropertyKeyConst.SERVER_ADDR] = locator.serverAddr
@@ -68,10 +63,6 @@ class NacosService(
         changeInstance(serviceNode, loggingApi) {
             this.isEnabled = false
         }
-
-        waitAfterSuspend?.let {
-            Thread.sleep(it.toMillis())
-        }
     }
 
     override fun resumedNode(serviceNode: ServiceNode, loggingApi: LoggingApi) {
@@ -107,7 +98,18 @@ class NacosService(
 
 
     override fun discoverNodes(service: Service): List<ServiceNode> {
-        return listOf()
+        return NamingFactory.createNamingService(properties).getAllInstances(serviceName)
+            .map {
+                val self = it
+                object : ServiceNode {
+                    override val ip: String
+                        get() = self.ip
+                    override val port: Int
+                        get() = self.port
+                    override val ingressLess: Boolean
+                        get() = !self.isEnabled
+                }
+            }
     }
 }
 
