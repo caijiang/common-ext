@@ -99,7 +99,12 @@ class ServiceDeployer(
 
         val allNodes = entrances.associateWith { it.discoverNodes(service) }
 
-        val nodes = allNodes.values.flatten()
+        val nodes = allNodes
+            .filterKeys {
+                // TODO 在阿里云中 无法部署 eci ，所以这里选择跳过 nacos 返回的节点
+                !it.ingressName.equals("nacos", true)
+            }
+            .values.flatten()
             .distinctBy { it.ip to it.port }
         nodesAware(nodes)
 
