@@ -33,3 +33,7 @@ typealias PostConstruct = jakarta.annotation.PostConstruct
 typealias Embeddable = jakarta.persistence.Embeddable
 typealias EmbeddedId = jakarta.persistence.EmbeddedId
 typealias MapsId = jakarta.persistence.MapsId
+
+//http
+typealias HttpServletRequest = jakarta.servlet.http.HttpServletRequest
+typealias HttpServletResponse = jakarta.servlet.http.HttpServletResponse

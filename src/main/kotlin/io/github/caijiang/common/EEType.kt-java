@@ -33,3 +33,7 @@ typealias PostConstruct = javax.annotation.PostConstruct
 typealias Embeddable = javax.persistence.Embeddable
 typealias EmbeddedId = javax.persistence.EmbeddedId
 typealias MapsId = javax.persistence.MapsId
+
+//http
+typealias HttpServletRequest = javax.servlet.http.HttpServletRequest
+typealias HttpServletResponse = javax.servlet.http.HttpServletResponse

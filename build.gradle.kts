@@ -41,6 +41,7 @@ repositories {
 
 val ee = project.findProperty("ee") ?: "java" // jakarta
 val jdkVersion = if (ee == "java") 8 else 17
+val servletApiVersion = if (ee == "java") "4.0.4" else "6.0.0"
 // https://stackoverflow.com/questions/77539033/how-to-avoid-compatibility-issues-between-java-ee-and-jakarta-ee
 val junitVersion = if (ee == "java") "5.6.3" else "5.10.1"
 val springIntegrationVersion = if (ee == "java") "5.5.20" else "6.2.1"
@@ -134,6 +135,10 @@ dependencies {
 
     // nacos
     compileAndTest("com.alibaba.nacos:nacos-client:2.5.0")
+
+    // servlet-api
+    compileAndTest("jakarta.servlet:jakarta.servlet-api:$servletApiVersion")
+
 }
 
 tasks.test {
