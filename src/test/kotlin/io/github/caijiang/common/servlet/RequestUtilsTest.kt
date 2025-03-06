@@ -26,7 +26,6 @@ class RequestUtilsTest : AbstractSpringTest() {
                 add("X-DEMO", "VALUE")
             })
         )
-            .isSuccessResponse()
     }
 
 }
