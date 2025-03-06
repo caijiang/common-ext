@@ -6,7 +6,7 @@ import org.springframework.util.Base64Utils
 import org.springframework.util.CollectionUtils
 
 /**
- * @since 2.3.0
+ * @since 2.2.0
  * @author CJ
  */
 object RequestUtils {

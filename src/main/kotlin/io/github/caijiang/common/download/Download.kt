@@ -18,7 +18,7 @@ object ResponseEntityUtils {
 
 /**
  * 以该文件名称作为下载,参考:https://www.rfc-editor.org/rfc/rfc5987.txt
- * @since 2.3.0
+ * @since 2.2.0
  */
 fun ResponseEntity.BodyBuilder.downloadWithFileName(name: String): ResponseEntity.BodyBuilder {
     return ResponseEntityUtils.downloadWithFileName(this, name)
