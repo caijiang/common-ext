@@ -13,6 +13,9 @@ internal object ForwardRequest {
         if (headerName.equals("Host", ignoreCase = true)) {
             return true
         }
+        if (headerName.equals("Transfer-Encoding", ignoreCase = true)) {
+            return true
+        }
         if (headerName.equals("Connection", ignoreCase = true)) {
             return true
         }
