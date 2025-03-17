@@ -52,11 +52,13 @@ object Helper {
     // [product_code].[region_id].aliyuncs.com
     fun <T : SdkAutoCloseable, BUILDER : IClientBuilder<BUILDER, T>> createClientForProduct(
         product: Pair<String, () -> BUILDER>,
-        locator: ResourceLocator
+        locator: ResourceLocator,
+        toEndpoint: (productName: String) -> String = {
+            val productCode = product.first
+            val vpc = "1" == System.getenv("VPC")
+            "$productCode${if (vpc) "-vpc" else ""}.${locator.region}.aliyuncs.com"
+        },
     ): T {
-        val productCode = product.first
-        val vpc = "1" == System.getenv("VPC")
-        val ep = "$productCode${if (vpc) "-vpc" else ""}.${locator.region}.aliyuncs.com"
         return product.second.invoke()
             .region(locator.region) // Region ID
             //.httpClient(httpClient) // Use the configured HttpClient, otherwise use the default HttpClient (Apache HttpClient)
@@ -64,7 +66,7 @@ object Helper {
             // Client-level configuration rewrite, can set Endpoint, Http request parameters, etc.
             .overrideConfiguration(
                 ClientOverrideConfiguration.create() // Endpoint 请参考 https://api.aliyun.com/product/Alb
-                    .setEndpointOverride(ep)
+                    .setEndpointOverride(toEndpoint(product.first))
                 //.setConnectTimeout(Duration.ofSeconds(30))
             )
             .build()
