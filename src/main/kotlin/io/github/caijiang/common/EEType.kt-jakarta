@@ -29,6 +29,7 @@ typealias ManyToMany = jakarta.persistence.ManyToMany
 typealias AttributeConverter<A,B> = jakarta.persistence.AttributeConverter<A,B>
 
 typealias PostConstruct = jakarta.annotation.PostConstruct
+typealias PreDestroy = jakarta.annotation.PreDestroy
 
 typealias Embeddable = jakarta.persistence.Embeddable
 typealias EmbeddedId = jakarta.persistence.EmbeddedId

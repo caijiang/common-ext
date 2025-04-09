@@ -96,9 +96,8 @@ object SolitaryHelper {
     }
 
     @JvmStatic
-    fun createRedis(noEmptyButCanBeNullPassword: String?): RedisServerEntry {
+    fun createRedisWithPort(noEmptyButCanBeNullPassword: String?, port: Int): RedisServerEntry {
         try {
-            val port = freePort()
             val password = noEmptyButCanBeNullPassword ?: RandomStringUtils.randomNumeric(6)
             val ss = createRedisServer(port, password)
             System.setProperty("redis.port", java.lang.String.valueOf(port))
@@ -120,6 +119,11 @@ object SolitaryHelper {
             log.error("启动内置redis 实例", e)
             throw RuntimeException(e)
         }
+    }
+
+    @JvmStatic
+    fun createRedis(noEmptyButCanBeNullPassword: String?): RedisServerEntry {
+        return createRedisWithPort(noEmptyButCanBeNullPassword, freePort())
     }
 
     private fun createRedisServer(port: Int, password: String): RedisServerEntry {
@@ -144,7 +148,7 @@ object SolitaryHelper {
             var builder = type.getDeclaredConstructor().newInstance()
             builder = portMethod.invoke(builder, port)
             builder = settingMethod.invoke(builder, "requirepass $password")
-            return RedisServerEntry(buildMethod.invoke(builder))
+            return RedisServerEntry(buildMethod.invoke(builder), port, password)
         } catch (e: NoSuchMethodException) {
             throw RuntimeException(e)
         } catch (e: InstantiationException) {

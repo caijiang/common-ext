@@ -1,5 +1,6 @@
 package io.github.caijiang.common.test.solitary
 
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import java.lang.reflect.Method
 import java.util.*
 
@@ -7,7 +8,9 @@ import java.util.*
  * @author CJ
  */
 class RedisServerEntry(
-    private val target: Any
+    private val target: Any,
+    val port: Int,
+    val password: String
 ) {
 
     fun start() {
@@ -34,5 +37,12 @@ class RedisServerEntry(
             }
 
         method.invoke(target)
+    }
+
+    fun toRedisStandaloneConfiguration(): RedisStandaloneConfiguration {
+        val conf = RedisStandaloneConfiguration("localhost", port)
+        conf.setPassword(password)
+
+        return conf
     }
 }

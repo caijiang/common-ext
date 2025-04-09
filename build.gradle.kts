@@ -83,6 +83,9 @@ dependencies {
     testImplementation("org.springframework:spring-test:$springFrameworkVersion")
     testImplementation("org.springframework:spring-context:$springFrameworkVersion")
 
+    // spring boot
+    compileAndTest("org.springframework.boot:spring-boot-autoconfigure:$springBootVersion")
+
     // execl
     compileAndTest("com.alibaba:easyexcel:3.3.4")
 
@@ -138,6 +141,13 @@ dependencies {
 
     // servlet-api
     compileAndTest("jakarta.servlet:jakarta.servlet-api:$servletApiVersion")
+
+    // rocket
+    compileAndTest("org.apache.rocketmq:rocketmq-spring-boot:2.3.0")
+
+    // redis
+    compileAndTest("org.springframework.data:spring-data-redis:$springDataVersion")
+    testImplementation("io.lettuce:lettuce-core:6.1.8.RELEASE")
 
 }
 
