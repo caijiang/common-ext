@@ -6,7 +6,7 @@ local id = redis.call('hget',KEYS[1],'trace')
 if id then
     return id
 else
-    redis.call('hset','key','trace',1)
+--     redis.call('hset','key','trace',1)
     redis.call('hset',KEYS[1],'trace',ARGV[1])
     return nil
 end
