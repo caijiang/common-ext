@@ -68,6 +68,7 @@ dependencies {
     compileOnly("org.springframework.boot:spring-boot:$springBootVersion")
     compileOnly("org.slf4j:slf4j-api:2.0.9")
     compileAndTest("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    compileAndTest("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     // test required
     testImplementation("org.jetbrains.kotlin:kotlin-test")

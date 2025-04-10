@@ -67,7 +67,7 @@ class DebounceRocketMQAutoConfigurationTest2 {
 
         log.info("这里断言发出的消息")
         val testType = "ba"
-        val testArg = MyId(1, 2)
+        val testArg = MyId(1, 2).toString()
         val testDebounceDuration = Duration.ofSeconds(5)
         val testDeathDuration = Duration.ofSeconds(10)
 

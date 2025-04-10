@@ -1,6 +1,5 @@
 package io.github.caijiang.common.debounce
 
-import java.io.Serializable
 import java.util.*
 
 /**
@@ -14,7 +13,7 @@ data class DelayMQData(
     /**
      * 业务参数
      */
-    val arg: Serializable,
+    val arg: String,
     /**
      * 事务 id
      */
@@ -26,7 +25,7 @@ data class DelayMQData(
     val debounceTimestamp: Long?
 ) {
     companion object {
-        fun redisHashKeyFor(type: String, arg: Serializable): String {
+        fun redisHashKeyFor(type: String, arg: String): String {
             return "debounce:${type}:${arg}"
         }
     }

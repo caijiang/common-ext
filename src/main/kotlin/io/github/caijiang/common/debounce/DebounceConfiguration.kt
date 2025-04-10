@@ -1,7 +1,7 @@
 package io.github.caijiang.common.debounce
 
+import io.github.caijiang.common.Slf4j.Companion.log
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.serializer.RedisSerializer
@@ -11,12 +11,12 @@ import java.nio.ByteBuffer
 /**
  * @author CJ
  */
-@ComponentScan("io.github.caijiang.common.debounce.bean")
 internal open class DebounceConfiguration(
     private val redisConnectionFactory: RedisConnectionFactory,
 ) {
-    @Bean
-    fun debounceRedisTemplate(): RedisTemplate<String, Any?> {
+
+    @Bean("debounceRedisTemplate")
+    open fun debounceRedisTemplate(): RedisTemplate<String, Any?> {
         val x = RedisSerializer.string()
         // value 有 2 种,string 跟 long; string 是通过 redis 直接写的 没有机会下手，long 我就定义用 0x00 识别
         val valueSerializer: RedisSerializer<Any?> = object : RedisSerializer<Any?> {
@@ -50,6 +50,7 @@ internal open class DebounceConfiguration(
 
         template.valueSerializer = valueSerializer
         template.hashValueSerializer = valueSerializer
+        log.debug("init debounceRedisTemplate via: {}", valueSerializer)
         return template
     }
 

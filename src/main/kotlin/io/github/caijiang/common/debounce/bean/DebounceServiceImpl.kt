@@ -1,15 +1,16 @@
 package io.github.caijiang.common.debounce.bean
 
+import io.github.caijiang.common.Slf4j.Companion.log
 import io.github.caijiang.common.debounce.DebounceService
 import io.github.caijiang.common.debounce.DelayMQData
 import io.github.caijiang.common.debounce.MqSender
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationContext
 import org.springframework.core.io.ClassPathResource
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.script.RedisScript
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Service
-import java.io.Serializable
 import java.time.Duration
 import java.util.*
 
@@ -20,6 +21,7 @@ import java.util.*
 class DebounceServiceImpl(
     private val applicationContext: ApplicationContext,
 //    private val mqSender: MqSender,
+    @Qualifier("debounceRedisTemplate")
     private val debounceRedisTemplate: RedisTemplate<String, Any?>,
 ) : DebounceService {
     private var mqSender: MqSender? = null
@@ -37,8 +39,9 @@ class DebounceServiceImpl(
      * 用原子方式写入业务 id
      * @return 是否新增，和事务 id
      */
-    private fun saveOrQueryTraceId(type: String, arg: Serializable): Pair<Boolean, UUID> {
+    private fun saveOrQueryTraceId(type: String, arg: String): Pair<Boolean, UUID> {
         val key = DelayMQData.redisHashKeyFor(type, arg)
+        log.trace("saveOrQueryTraceId for hash:{}", key)
         val inputTrace = UUID.randomUUID()
         @Suppress("USELESS_CAST") val resultTrace =
             debounceRedisTemplate.execute(debounceAbsent, listOf(key), inputTrace.toString()) as String?
@@ -46,7 +49,7 @@ class DebounceServiceImpl(
         return Pair(false, UUID.fromString(resultTrace))
     }
 
-    override fun debounce(type: String, arg: Serializable, debounceDuration: Duration, deathDuration: Duration) {
+    override fun debounce(type: String, arg: String, debounceDuration: Duration, deathDuration: Duration) {
         if (mqSender == null) {
             mqSender = applicationContext.getBean(MqSender::class.java)
         }

@@ -112,3 +112,10 @@ public class AnyConfigClass {
   1. 检查关联事务是否存在，不存在表示该项作业已完成，结束
   2. 为`防抖时间` MQ 且 标记防抖结束时间大于当前时间，防抖时间内业务重复发生，结束
   3. 移除所有事务缓存，并且实施作业
+
+#### 对接流程
+
+1. 设置必要系统参数
+2. 引入 com.fasterxml.jackson.module:jackson-module-kotlin
+3. 引入 rocketMQ (可通过 rocketmq-spring-boot-starter)
+4. 引入 RedisConnectionFactory (可通过 spring-boot-starter-data-redis)

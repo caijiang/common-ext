@@ -1,6 +1,5 @@
 package io.github.caijiang.common.debounce
 
-import java.io.Serializable
 import java.time.Duration
 
 /**
@@ -16,5 +15,5 @@ interface DebounceService {
      * @param deathDuration 死时间
      * @see DebounceCallbackService.invokeBusiness
      */
-    fun debounce(type: String, arg: Serializable, debounceDuration: Duration, deathDuration: Duration)
+    fun debounce(type: String, arg: String, debounceDuration: Duration, deathDuration: Duration)
 }

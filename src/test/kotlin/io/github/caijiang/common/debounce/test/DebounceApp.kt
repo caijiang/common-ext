@@ -63,7 +63,7 @@ open class DebounceApp : MqSender, DebounceCallbackService {
         sendingMqMessages.add(Pair(message, duration))
     }
 
-    override fun invokeBusiness(type: String, arg: Serializable) {
+    override fun invokeBusiness(type: String, arg: String) {
         invokingBusinessList.add(Pair(type, arg))
     }
 }
