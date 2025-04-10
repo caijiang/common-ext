@@ -119,3 +119,5 @@ public class AnyConfigClass {
 2. 引入 com.fasterxml.jackson.module:jackson-module-kotlin
 3. 引入 rocketMQ (可通过 rocketmq-spring-boot-starter)
 4. 引入 RedisConnectionFactory (可通过 spring-boot-starter-data-redis)
+5. 新增 spring bean `DebounceCallbackService` 负责实施业务作业
+6. 原业务入口用现有 spring bean `DebounceService` 代替实施
