@@ -9,10 +9,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
-import org.springframework.boot.autoconfigure.condition.AllNestedConditions
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.autoconfigure.condition.*
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.*
@@ -22,7 +19,8 @@ import org.springframework.data.redis.core.RedisTemplate
 /**
  * rocketMQ 约定配置
  */
-class RocketMQRequiredCondition : AllNestedConditions(ConfigurationCondition.ConfigurationPhase.PARSE_CONFIGURATION) {
+internal class RocketMQRequiredCondition :
+    AllNestedConditions(ConfigurationCondition.ConfigurationPhase.PARSE_CONFIGURATION) {
     @ConditionalOnProperty(prefix = "common.debounce", name = ["topic"], matchIfMissing = false)
     class Topic1
 
@@ -33,18 +31,20 @@ class RocketMQRequiredCondition : AllNestedConditions(ConfigurationCondition.Con
 /**
  * 必备配置
  */
-class RocketRequiredCondition : AllNestedConditions(ConfigurationCondition.ConfigurationPhase.REGISTER_BEAN) {
+internal class RocketRequiredCondition : AllNestedConditions(ConfigurationCondition.ConfigurationPhase.REGISTER_BEAN) {
     @ConditionalOnClass(
         KotlinModule::class,
         RedisTemplate::class,
         RedisConnectionFactory::class,
         RocketMQTemplate::class,
-        DebounceCallbackService::class
     )
     class C1
 
     @ConditionalOnBean(RedisConnectionFactory::class, RocketMQTemplate::class, DebounceCallbackService::class)
     class C2
+
+    @ConditionalOnMissingBean(DebounceService::class)
+    class C3
 }
 
 /**

@@ -22,11 +22,11 @@ import java.time.Duration
 @SpringBootTest(
     classes = [DebounceApp::class],
 )
-@ActiveProfiles("test")
+@ActiveProfiles("test", "noMockDebounce")
 class DebounceRocketMQAutoConfigurationTest {
     @Test
-    internal fun 逃过自动载入(@Autowired(required = false) config: DebounceConfiguration?) {
-        assertThat(config)
+    internal fun 逃过自动载入(@Autowired(required = false) service: DebounceService?) {
+        assertThat(service)
             .`as`("没有特别声明，我们不会载入")
             .isNull()
     }
@@ -39,7 +39,7 @@ class DebounceRocketMQAutoConfigurationTest {
     classes = [DebounceApp::class],
     properties = ["common.debounce.topic=abc", "common.debounce.rocketMqConsumerGroup=g", "rocketmq.name-server=X"]
 )
-@ActiveProfiles("test", "skipRocketMq")
+@ActiveProfiles("test", "skipRocketMq", "noMockDebounce")
 class DebounceRocketMQAutoConfigurationTest2 {
 
     @Autowired
@@ -55,14 +55,10 @@ class DebounceRocketMQAutoConfigurationTest2 {
 
     @Test
     internal fun 正常执行防抖业务(
-        @Autowired(required = false) config: DebounceConfiguration?,
         @Autowired(required = false) debounceService: DebounceService?
     ) {
-        assertThat(config)
-            .`as`("履约行事则可载入")
-            .isNotNull
-
         assertThat(debounceService)
+            .`as`("履约行事则可载入")
             .isNotNull
 
         log.info("这里断言发出的消息")

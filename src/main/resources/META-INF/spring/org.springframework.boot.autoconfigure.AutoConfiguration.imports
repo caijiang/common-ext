@@ -1,1 +1,2 @@
 io.github.caijiang.common.debounce.DebounceRocketMQAutoConfiguration
+io.github.caijiang.common.debounce.DebounceTestAutoConfiguration
