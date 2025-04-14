@@ -35,8 +35,7 @@ object UtilUtils {
         val traces = Thread.currentThread().stackTrace
         for (element in traces) {
             if (element.className.startsWith("org.junit.") ||
-                element.className.startsWith("org.testng.") ||
-                element.className.contains("Test")
+                element.className.startsWith("org.testng.")
             ) {
                 return true
             }
