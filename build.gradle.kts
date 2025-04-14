@@ -148,7 +148,8 @@ dependencies {
 
     // redis
     compileAndTest("org.springframework.data:spring-data-redis:$springDataVersion")
-    testImplementation("io.lettuce:lettuce-core:6.1.8.RELEASE")
+    // 6.3.0.RELEASE  6.1.8.RELEASE
+    testImplementation("io.lettuce:lettuce-core:6.3.0.RELEASE")
 
 }
 
