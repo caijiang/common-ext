@@ -1,5 +1,6 @@
 package io.github.caijiang.common.debounce
 
+import io.github.caijiang.common.PreDestroy
 import io.github.caijiang.common.Slf4j.Companion.log
 import io.github.caijiang.common.util.UtilUtils
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.context.annotation.*
 import org.springframework.core.type.AnnotatedTypeMetadata
 import java.time.Duration
+import java.util.concurrent.Executors
 
 /**
  * 必备配置
@@ -39,16 +41,28 @@ internal class TestCondition : AllNestedConditions(ConfigurationCondition.Config
 @AutoConfigureBefore(DebounceRocketMQAutoConfiguration::class)
 open class DebounceTestAutoConfiguration(
     @Suppress("SpringJavaInjectionPointsAutowiringInspection") private val callbackService: DebounceCallbackService
-) {
+) : AutoCloseable {
+    private val singleServices = Executors.newSingleThreadExecutor()
 
     @Bean
     open fun mockDebounceService(): DebounceService {
         return object : DebounceService {
             override fun debounce(type: String, arg: String, debounceDuration: Duration, deathDuration: Duration) {
-                log.info("这里是单元测试，所以直接执行防抖回调:{}:{}", type, arg)
-                callbackService.invokeBusiness(type, arg)
+                log.info(
+                    "这里是单元测试，所以直接执行防抖回调:{}:{}, 为了避免影响事务其执行是在其他线程内调用",
+                    type,
+                    arg
+                )
+                singleServices.execute {
+                    callbackService.invokeBusiness(type, arg)
+                }
             }
         }
+    }
+
+    @PreDestroy
+    override fun close() {
+        singleServices.shutdown()
     }
 
 }
