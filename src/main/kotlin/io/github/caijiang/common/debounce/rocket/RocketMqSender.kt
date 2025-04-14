@@ -7,6 +7,8 @@ import io.github.caijiang.common.Slf4j.Companion.log
 import io.github.caijiang.common.debounce.DelayMQData
 import io.github.caijiang.common.debounce.MqSender
 import io.github.caijiang.common.debounce.config.DebounceProperties
+import org.apache.rocketmq.client.producer.SendCallback
+import org.apache.rocketmq.client.producer.SendResult
 import org.apache.rocketmq.spring.core.RocketMQTemplate
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
@@ -69,23 +71,46 @@ class RocketMqSender(
         Duration.ofHours(2) to 18
     )
 
+    private class TheSendCallback(private val message: Message<*>) : SendCallback {
+        override fun onSuccess(sendResult: SendResult?) {
+            log.debug("send message:{} to rocketMQ with result = {}", message, sendResult)
+        }
+
+        override fun onException(e: Throwable?) {
+            log.warn("send message:{} to rocketMQ with exception:", message, e)
+        }
+
+    }
+
     override fun sendDelay(message: Message<DelayMQData>, duration: Duration) {
         val realMessage = MessageBuilder.withPayload(rocketMqMapper.writeValueAsString(message.payload))
             .copyHeaders(message.headers)
             .build()
 
-        val result = if (!supportCustomTime) {
-            log.trace("rocketMQ 5.0 -- template.syncSend with payload:{}", realMessage.payload)
-            template.syncSend(
-                properties.topic, realMessage, template.producer.sendMsgTimeout.toLong(),
+        if (properties.asyncSending) {
+            log.trace("rocketMQ 5.0 -- template.asyncSend with {}", realMessage)
+            template.asyncSend(
+                properties.topic,
+                realMessage,
+                TheSendCallback(realMessage),
+                template.producer.sendMsgTimeout.toLong(),
                 rocketMqDelayLevels[duration]
-                    ?: throw IllegalStateException("RocketMQ 5.0 之前的版本，只能使用:${rocketMqDelayLevels.keys}")
+                    ?: throw IllegalStateException("RocketMQ 5.0 之前的版本或者异步发送，只能使用:${rocketMqDelayLevels.keys}")
             )
         } else {
-            // 5.0
-            log.trace("rocketMQ 5.0 ++ template.syncSendDelayTimeMills with payload:{}", realMessage.payload)
-            template.syncSendDelayTimeMills(properties.topic, realMessage, duration.toMillis())
+            val result = if (!supportCustomTime) {
+                log.trace("rocketMQ 5.0 -- template.syncSend with {}", realMessage)
+                template.syncSend(
+                    properties.topic, realMessage, template.producer.sendMsgTimeout.toLong(),
+                    rocketMqDelayLevels[duration]
+                        ?: throw IllegalStateException("RocketMQ 5.0 之前的版本，只能使用:${rocketMqDelayLevels.keys}")
+                )
+            } else {
+                // 5.0
+                log.trace("rocketMQ 5.0 ++ template.syncSendDelayTimeMills with {}", realMessage)
+                template.syncSendDelayTimeMills(properties.topic, realMessage, duration.toMillis())
+            }
+            log.debug("send message:{} to rocketMQ with result = {}", realMessage, result)
         }
-        log.debug("rocketMQ sendResult = {}", result)
     }
 }

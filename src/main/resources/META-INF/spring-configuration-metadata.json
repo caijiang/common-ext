@@ -8,6 +8,13 @@
   ],
   "properties": [
     {
+      "name": "common.debounce.async-sending",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "异步发送消息，默认是同步发送",
+      "sourceType": "io.github.caijiang.common.debounce.config.DebounceProperties"
+    },
+    {
       "name": "common.debounce.enabled",
       "type": "java.lang.Boolean",
       "defaultValue": true,

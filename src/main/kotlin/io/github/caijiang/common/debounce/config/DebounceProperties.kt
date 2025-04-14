@@ -9,6 +9,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class DebounceProperties(
     var enabled: Boolean = true,
     /**
+     * 异步发送消息，默认是同步发送
+     */
+    var asyncSending: Boolean = true,
+    /**
      * 延时 mq 的名称
      */
     var topic: String? = null,

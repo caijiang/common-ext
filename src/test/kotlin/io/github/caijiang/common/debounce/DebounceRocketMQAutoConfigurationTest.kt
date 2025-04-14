@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.messaging.Message
+import org.springframework.messaging.support.MessageBuilder
 import org.springframework.test.context.ActiveProfiles
 import java.io.Serializable
 import java.time.Duration
@@ -57,6 +58,11 @@ class DebounceRocketMQAutoConfigurationTest2 {
     internal fun 正常执行防抖业务(
         @Autowired(required = false) debounceService: DebounceService?
     ) {
+        val message = MessageBuilder.withPayload("")
+            .build()
+        log.info("generated message: $message")
+        assertThat(message.payload)
+            .isNotNull()
         assertThat(debounceService)
             .`as`("履约行事则可载入")
             .isNotNull
