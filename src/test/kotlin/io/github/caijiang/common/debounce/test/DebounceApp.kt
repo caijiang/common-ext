@@ -11,7 +11,11 @@ import io.github.caijiang.common.test.solitary.SolitaryHelper
 import org.apache.rocketmq.spring.core.RocketMQTemplate
 import org.mockito.Mockito
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
@@ -23,7 +27,12 @@ import java.util.*
 /**
  * @author CJ
  */
-@SpringBootApplication(exclude = [RepositoryRestMvcAutoConfiguration::class])
+@SpringBootApplication(
+    exclude = [RepositoryRestMvcAutoConfiguration::class, DataSourceAutoConfiguration::class,
+        HibernateJpaAutoConfiguration::class,
+        DataSourceTransactionManagerAutoConfiguration::class,
+        JpaRepositoriesAutoConfiguration::class]
+)
 open class DebounceApp : MqSender, DebounceCallbackService {
 
     private lateinit var redisInstance: RedisServerEntry
