@@ -1,10 +1,8 @@
 @file:Suppress("VulnerableLibrariesLocal")
 
-import java.net.URI
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
 
 plugins {
     kotlin("jvm") version "1.9.21"
@@ -26,18 +24,6 @@ fun fetchRealVersion() = project.findProperty("fixedVersion")?.toString() ?: pro
 
 group = "io.github.caijiang"
 version = fetchRealVersion()
-
-repositories {
-//        在中国区域的时候，使用阿里云加速
-    if (Locale.getDefault().country == "CN") {
-        maven {
-            url = URI("https://maven.aliyun.com/repository/public/")
-        }
-    }
-
-    mavenLocal()
-    mavenCentral()
-}
 
 val ee = project.findProperty("ee") ?: "java" // jakarta
 val jdkVersion = if (ee == "java") 8 else 17
@@ -150,6 +136,7 @@ dependencies {
     compileAndTest("org.springframework.data:spring-data-redis:$springDataVersion")
     // 6.3.0.RELEASE  6.1.8.RELEASE
     testImplementation("io.lettuce:lettuce-core:6.3.0.RELEASE")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
 }
 
