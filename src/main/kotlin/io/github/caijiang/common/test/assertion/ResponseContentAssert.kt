@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import io.github.caijiang.common.test.assertion.rest.RestResourceAssert
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollection
 import io.github.caijiang.common.test.assertion.rest.RestResourceCollectionAssert
-import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.*
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.ObjectAssert
+import org.assertj.core.internal.Objects
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 
 
@@ -31,9 +32,59 @@ open class ResponseContentAssert<
     private val log = LoggerFactory.getLogger(ResponseContentAssert::class.java)
     private val objectMapper = ObjectMapper()
 
-
     @Suppress("MemberVisibilityCanBePrivate")
     protected var businessResult: BusinessResult? = null
+
+    /**
+     * 断言唯一值
+     * @since 2.4.0
+     */
+    fun assertSingleHeader(name: String, work: (AbstractStringAssert<*>) -> Unit): SELF {
+        val value = actual.headers[name]
+        value?.let {
+            Objects.instance().assertEqual(info, it.size, 1)
+        }
+        work(assertThat(value?.firstOrNull()))
+        return this as SELF
+    }
+
+    /**
+     * 断言第一个值
+     * @since 2.4.0
+     */
+    fun assertFirstHeader(name: String, work: (AbstractStringAssert<*>) -> Unit): SELF {
+        val value = actual.headers.getFirst(name)
+        work(assertThat(value))
+        return this as SELF
+    }
+
+    /**
+     * 断言某一个头
+     * @since 2.4.0
+     */
+    fun assertHeader(name: String, work: (ListAssert<String>) -> Unit): SELF {
+        val value = actual.headers[name]
+        work(assertThat(value))
+        return this as SELF
+    }
+
+    /**
+     * 断言整体头
+     * @since 2.4.0
+     */
+    fun assertHeaders(work: (MapAssert<String, List<String>>) -> Unit): SELF {
+        work(assertThat(actual.headers))
+        return this as SELF
+    }
+
+    /**
+     * @since 2.4.0
+     */
+    fun workWithHeaders(work: (HttpHeaders) -> Unit): SELF {
+        work(actual.headers)
+        return this as SELF
+    }
+
 
     /**
      * @return 这是一个合法的响应
