@@ -126,7 +126,10 @@ abstract class AbstractSpringTest {
     /**
      * @param requestFactoryClass 如果保持缺省的话, spring 测试运行时会根据当前的 classpath 自行选择更为合适的引擎
      */
-    protected fun createTestTemplate(requestFactoryClass: Class<out ClientHttpRequestFactory>? = null): RestTemplate {
+    protected fun createTestTemplate(
+        requestFactoryClass: Class<out ClientHttpRequestFactory>? = null,
+        customizer: ((RestTemplateBuilder) -> RestTemplateBuilder)? = null
+    ): RestTemplate {
         val restTemplateBuilder = applicationContext.getBean<RestTemplateBuilder>()
         //        if (followRedirect) {
 //            @Suppress("UNREACHABLE_CODE")
@@ -157,6 +160,9 @@ abstract class AbstractSpringTest {
                 } else {
                     requestFactory(requestFactoryClass)
                 }
+            }
+            .let {
+                customizer?.invoke(it) ?: it
             }
             .build()
     }
