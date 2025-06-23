@@ -233,6 +233,16 @@ open class ResponseContentAssert<
         return this as SELF
     }
 
+
+    private fun JsonNode?.findObjectNodeChild(childName: String): ObjectNode {
+        val child = this?.get(childName)
+        if (child == null || child.isNull) {
+            return objectMapper.createObjectNode()
+        }
+        if (child.isObject) return child as ObjectNode
+        throw IllegalArgumentException("child `$childName` is not an object; ${child.nodeType}")
+    }
+
     /**
      * @return 转成 spring rest 资源集合断言
      */
@@ -241,8 +251,8 @@ open class ResponseContentAssert<
         if (businessResult != null) {
             return RestResourceCollectionAssert(
                 RestResourceCollection(
-                    businessResult!!.body!!["_embedded"] as ObjectNode,
-                    businessResult!!.body!!["_links"] as ObjectNode,
+                    businessResult?.body?.findObjectNodeChild("_embedded")!!,
+                    businessResult?.body?.findObjectNodeChild("_links")!!,
                     businessResult!!.body?.get("page") as ObjectNode?,
                 )
             )
