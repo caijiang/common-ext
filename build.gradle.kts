@@ -1,5 +1,6 @@
 @file:Suppress("VulnerableLibrariesLocal")
 
+import org.jreleaser.model.Active
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -12,6 +13,7 @@ plugins {
     id("org.jetbrains.dokka") version "1.9.10"
     kotlin("plugin.jpa") version "1.9.21"
     antlr
+    id("org.jreleaser") version "1.20.0"
 }
 
 /**
@@ -178,7 +180,61 @@ tasks.compileKotlin {
     dependsOn(copyEE, tasks.generateGrammarSource)
 }
 
+/**
+ * 这是一个构件目录，作为 maven的 发布重点
+ */
+val stagingDir = layout.buildDirectory.dir("staging").get().asFile
+
+tasks.jreleaserDeploy {
+    dependsOn("publishMavenPublicationToStagingRepository")
+}
+
 // publish
+jreleaser {
+    project {
+
+    }
+    packagers {
+
+    }
+    release {
+        github {
+            repoOwner = "caijiang"
+            name = "common-ext"
+            overwrite = true
+        }
+    }
+
+    deploy {
+        maven {
+            github {
+                create("common-ext") {
+                    active.set(Active.ALWAYS)
+                    url.set("https://maven.pkg.github.com/caijiang/common-ext")
+                    snapshotSupported = true
+//                    sign=true
+                    checksums = true
+                    sourceJar = true
+                    javadocJar = true
+                    verifyPom = true
+//                    applyMavenCentralRules = true
+//                    artifactOverride{
+//
+//                    }
+                    stagingRepository(stagingDir.absolutePath)
+                }
+
+            }
+        }
+    }
+//    release {
+//        github {
+//            owner.set("yourname") // GitHub 用户名或组织名
+//            name.set("my-library") // 仓库名
+//            overwrite.set(true)
+//        }
+//    }
+}
 
 val dokkaJavadocJar by tasks.register<Jar>("dokkaJavadocJar") {
     dependsOn(tasks.dokkaJavadoc)
@@ -211,11 +267,25 @@ extensions.configure<PublishingExtension> {
     publishing {
         repositories {
             maven {
+                name = "staging"
+                url = uri(stagingDir)
+            }
+            maven {
                 name = "OSSRH"
 //            https://docs.gradle.org/current/samples/sample_publishing_credentials.html
                 credentials(PasswordCredentials::class)
                 val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
                 val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                val v = fetchRealVersion()
+                url = uri(if (v.endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+            }
+            maven {
+                name = "PH"
+                credentials(PasswordCredentials::class)
+                val releasesRepoUrl =
+                    "https://packages.aliyun.com/658024d8b488fff322e7d41e/maven/2442991-release-yx2ypj"
+                val snapshotsRepoUrl =
+                    "https://packages.aliyun.com/658024d8b488fff322e7d41e/maven/2442991-snapshot-zrzds5"
                 val v = fetchRealVersion()
                 url = uri(if (v.endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
             }

@@ -51,7 +51,8 @@ jobs:
           mavenPassword: ${{ secrets.MAVEN_PASSWORD }}
           keyId: ${{ secrets.keyId }}
           password: ${{ secrets.password }}
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: |
           echo "$secretKeyRingFileBase64"|base64 --decode > ./s.gpg
-          ORG_GRADLE_PROJECT_fixedVersion="$version" ORG_GRADLE_PROJECT_OSSRHUsername="$mavenUsername" ORG_GRADLE_PROJECT_OSSRHPassword="$mavenPassword"  ./gradlew -Psigning.keyId="$keyId" -Psigning.password="$password" -Psigning.secretKeyRingFile="`pwd`/s.gpg" -PwithDocument=1 -i --warning-mode all clean publish
+          ORG_GRADLE_PROJECT_fixedVersion="$version" ORG_GRADLE_PROJECT_OSSRHUsername="$mavenUsername" ORG_GRADLE_PROJECT_OSSRHPassword="$mavenPassword"  ./gradlew -Psigning.keyId="$keyId" -Psigning.password="$password" -Psigning.secretKeyRingFile="`pwd`/s.gpg" -PwithDocument=1 -i --warning-mode all clean jreleaserDeploy
 
