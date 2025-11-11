@@ -9,7 +9,6 @@ plugins {
     kotlin("jvm") version "1.9.21"
     id("maven-publish")
     id("java-library")
-    signing
     id("org.jetbrains.dokka") version "1.9.10"
     kotlin("plugin.jpa") version "1.9.21"
     antlr
@@ -204,36 +203,55 @@ jreleaser {
             overwrite = true
         }
     }
+    signing {
+        active = Active.ALWAYS
+        verify = true
+        armored = true
+    }
 
     deploy {
         maven {
-            github {
-                create("common-ext") {
-                    active.set(Active.ALWAYS)
-                    url.set("https://maven.pkg.github.com/caijiang/common-ext")
-                    snapshotSupported = true
-//                    sign=true
+            mavenCentral {
+                create("central") {
+                    active.set(Active.RELEASE)
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    sign = true
                     checksums = true
                     sourceJar = true
                     javadocJar = true
                     verifyPom = true
-//                    applyMavenCentralRules = true
-//                    artifactOverride{
-//
-//                    }
+                    stagingRepository(stagingDir.absolutePath)
+                }
+            }
+            nexus2 {
+                create("central") {
+                    active.set(Active.SNAPSHOT)
+                    snapshotUrl = "https://central.sonatype.com/repository/maven-snapshots/"
+                    snapshotSupported = true
+                    sign = true
+                    checksums = true
+                    sourceJar = true
+                    javadocJar = true
+                    verifyPom = true
+                    stagingRepository(stagingDir.absolutePath)
+                }
+            }
+            github {
+                create("common-ext") {
+                    active.set(Active.NEVER)
+                    url.set("https://maven.pkg.github.com/caijiang/common-ext")
+                    snapshotSupported = true
+                    sign = true
+                    checksums = true
+                    sourceJar = true
+                    javadocJar = true
+                    verifyPom = true
                     stagingRepository(stagingDir.absolutePath)
                 }
 
             }
         }
     }
-//    release {
-//        github {
-//            owner.set("yourname") // GitHub 用户名或组织名
-//            name.set("my-library") // 仓库名
-//            overwrite.set(true)
-//        }
-//    }
 }
 
 val dokkaJavadocJar by tasks.register<Jar>("dokkaJavadocJar") {
@@ -269,15 +287,6 @@ extensions.configure<PublishingExtension> {
             maven {
                 name = "staging"
                 url = uri(stagingDir)
-            }
-            maven {
-                name = "OSSRH"
-//            https://docs.gradle.org/current/samples/sample_publishing_credentials.html
-                credentials(PasswordCredentials::class)
-                val releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                val snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-                val v = fetchRealVersion()
-                url = uri(if (v.endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
             }
             maven {
                 name = "PH"
@@ -342,10 +351,6 @@ extensions.configure<PublishingExtension> {
     }
 }
 
-signing {
-    sign(publishing.publications["maven"])
-}
-
 //创建一个下载任务
 fun downloadFile(url: URL, target: File) {
     if (!target.exists()) {
@@ -379,6 +384,9 @@ tasks.withType<AntlrTask> {
     outputDirectory = File(outputDirectory, "io/github/caijiang/common/mysql")
 }
 
-//tasks.generateGrammarSource {
-//
-//}
+tasks.named("dokkaJavadoc") {
+    dependsOn("generateGrammarSource")
+}
+tasks.named("dokkaHtml") {
+    dependsOn("generateGrammarSource")
+}
