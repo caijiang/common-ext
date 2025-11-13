@@ -38,7 +38,7 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [ 11 ]
+        java-version: [ 17 ]
         jpa-implements: [ hibernate,eclipseLink ]
         ee-version: [ java,jakarta ]
     permissions: write-all
@@ -54,7 +54,7 @@ jobs:
       - name: Gradle Build Action
         uses: gradle/gradle-build-action@v2.11.1
         with:
-          gradle-version: 8.4
+          gradle-version: 9.1.0
       - run: java -version
       - name: Build
         env:
@@ -80,7 +80,7 @@ jobs:
 
     strategy:
       matrix:
-        java-version: [ 11 ]
+        java-version: [ 17 ]
         ee-version: [ java,jakarta ]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
@@ -96,7 +96,7 @@ jobs:
       - name: Gradle Build Action
         uses: gradle/gradle-build-action@v2.11.1
         with:
-          gradle-version: 8.4
+          gradle-version: 9.1.0
       - run: java -version
       - name: Build
         env:

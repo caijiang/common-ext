@@ -94,6 +94,7 @@ dependencies {
         testImplementation("org.eclipse.persistence:eclipselink:$eclipseLinkVersion")
         testImplementation("jakarta.persistence:jakarta.persistence-api:$persistenceVersion")
     }
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.11.3")
 
     // redisson
     compileOnly("org.redisson:$redissonHibernateArtifactId:3.26.0")
@@ -143,7 +144,9 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        includeEngines("junit-jupiter", "junit-platform-launcher")
+    }
     ignoreFailures = true
 }
 kotlin {
@@ -154,7 +157,7 @@ sourceSets.main {
     kotlin.srcDirs("src/main/kotlin", "build/main/generatedKotlin")
 }
 
-val copyEE = tasks.create("copyEE") {
+val copyEE = tasks.register("copyEE") {
     doLast {
         val codeBase = "$rootDir/src/main/kotlin"
         val targetBase = "$rootDir/build/main/generatedKotlin"
