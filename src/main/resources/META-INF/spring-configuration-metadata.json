@@ -4,6 +4,11 @@
       "name": "common.debounce",
       "type": "io.github.caijiang.common.debounce.config.DebounceProperties",
       "sourceType": "io.github.caijiang.common.debounce.config.DebounceProperties"
+    },
+    {
+      "name": "common.notify",
+      "type": "io.github.caijiang.common.notify.config.NotifyConfiguration",
+      "sourceType": "io.github.caijiang.common.notify.config.NotifyConfiguration"
     }
   ],
   "properties": [
@@ -38,6 +43,18 @@
       "type": "java.lang.String",
       "description": "消费组",
       "sourceType": "io.github.caijiang.common.debounce.config.DebounceProperties"
+    },
+    {
+      "name": "common.notify.thread-size",
+      "type": "java.lang.Integer",
+      "description": "异步处理消息的线程池宽度",
+      "sourceType": "io.github.caijiang.common.notify.config.NotifyConfiguration"
+    },
+    {
+      "name": "common.notify.roles",
+      "type": "java.util.Map<io.github.caijiang.common.notify.UrgentRole, io.github.caijiang.common.notify.config.NotifyConfiguration.TargetConfig[]>",
+      "description": "不同角色需要通知的不同渠道配置",
+      "sourceType": "io.github.caijiang.common.notify.config.NotifyConfiguration"
     }
   ],
   "hints": []

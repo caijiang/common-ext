@@ -49,5 +49,6 @@ bin/
 /review
 /src/test/kotlin/io/github/caijiang/common/**/Local*.kt
 /src/test/resources/**/Local*
+/src/test/resources/application-local.yaml
 /local
 
