@@ -44,7 +44,7 @@ open class SendNoticeServiceImpl(
                     notifyConfiguration.roles[role]?.filter {
                         excludes == null || !excludes.contains(it.channel)
                     }?.forEach {
-                        sendMessage(it, notify.message)
+                        sendMessage(it, notify.notifiableMessage)
                     }
                 }
             } catch (ex: Exception) {

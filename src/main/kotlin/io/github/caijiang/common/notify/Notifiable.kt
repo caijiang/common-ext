@@ -18,5 +18,5 @@ interface Notifiable {
     /**
      * 内容
      */
-    val message: NotifiableMessage
+    val notifiableMessage: NotifiableMessage
 }

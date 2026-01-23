@@ -24,7 +24,7 @@ class NotifyAutoConfigurationTest {
         service?.send(object : Notifiable {
             override val urgentRole: UrgentRole
                 get() = UrgentRole.Technology
-            override val message: NotifiableMessage
+            override val notifiableMessage: NotifiableMessage
                 get() = object : NotifiableMessage {
                     override val title: String?
                         get() = null
