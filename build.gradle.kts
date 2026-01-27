@@ -141,6 +141,9 @@ dependencies {
     testImplementation("io.lettuce:lettuce-core:6.3.0.RELEASE")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 
+    // mockito-with-kotlin
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation("org.mockito:mockito-inline:4.5.1")
 }
 
 tasks.test {
