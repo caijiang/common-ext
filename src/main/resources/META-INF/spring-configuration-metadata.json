@@ -6,6 +6,11 @@
       "sourceType": "io.github.caijiang.common.debounce.config.DebounceProperties"
     },
     {
+      "name": "common.job",
+      "type": "io.github.caijiang.common.job.worker.JobWorkerConfiguration",
+      "sourceType": "io.github.caijiang.common.job.worker.JobWorkerConfiguration"
+    },
+    {
       "name": "common.notify",
       "type": "io.github.caijiang.common.notify.config.NotifyConfiguration",
       "sourceType": "io.github.caijiang.common.notify.config.NotifyConfiguration"
@@ -43,6 +48,12 @@
       "type": "java.lang.String",
       "description": "消费组",
       "sourceType": "io.github.caijiang.common.debounce.config.DebounceProperties"
+    },
+    {
+      "name": "common.job.scheduler-service-url",
+      "type": "java.lang.String",
+      "description": "调度服务的url, 比如 http://target:8080/foo/bar ; 也可以有环境变量 JOB_SCHEDULER_SERVICE_URL 定义",
+      "sourceType": "io.github.caijiang.common.job.worker.JobWorkerConfiguration"
     },
     {
       "name": "common.notify.thread-size",

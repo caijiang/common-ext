@@ -11,6 +11,7 @@ plugins {
     id("java-library")
     id("org.jetbrains.dokka") version "1.9.10"
     kotlin("plugin.jpa") version "1.9.21"
+    kotlin("plugin.serialization") version "1.9.21"
     antlr
     id("org.jreleaser") version "1.20.0"
 }
@@ -43,6 +44,8 @@ val redissonHibernateArtifactId = if (ee == "java") "redisson-hibernate-53" else
 val eclipseLinkVersion = if (ee == "java") "2.7.13" else "3.0.4"
 //测试使用的 jpa 引擎，默认 hibernate
 val jpa = project.findProperty("jpaImpl") ?: "hibernate" // eclipselink
+val kotlinxSerializationJSON = "1.6.3"
+val ktorVersion = "2.3.13"
 
 dependencies {
     fun compileAndTest(dependencyNotation: Any) {
@@ -56,6 +59,12 @@ dependencies {
     compileOnly("org.slf4j:slf4j-api:2.0.9")
     compileAndTest("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compileAndTest("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // kotlin-json
+    compileAndTest("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJSON")
+
+    // ktor
+    compileAndTest("io.ktor:ktor-server-core:$ktorVersion")
 
     // test required
     testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -144,6 +153,9 @@ dependencies {
     // mockito-with-kotlin
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     testImplementation("org.mockito:mockito-inline:4.5.1")
+
+    // k8s
+    compileAndTest("io.fabric8:kubernetes-client:7.4.0")
 }
 
 tasks.test {

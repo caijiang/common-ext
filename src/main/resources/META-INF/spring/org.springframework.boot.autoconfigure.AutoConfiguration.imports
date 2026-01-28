@@ -2,3 +2,4 @@ io.github.caijiang.common.debounce.DebounceRocketMQAutoConfiguration
 io.github.caijiang.common.debounce.DebounceTestAutoConfiguration
 io.github.caijiang.common.aliyun.oss.OssUsageAutoConfiguration
 io.github.caijiang.common.notify.NotifyAutoConfiguration
+io.github.caijiang.common.job.worker.JobWorkerAutoConfiguration
