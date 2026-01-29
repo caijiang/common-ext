@@ -10,8 +10,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.util.*
 
-private class KtorTemporaryJob(override val type: String, override val parameters: Map<String, String>) : TemporaryJob
-private class KtorPersistentJob(
+class KtorTemporaryJob(override val type: String, override val parameters: Map<String, String>) : TemporaryJob
+class KtorPersistentJob(
     override val type: String,
     override val name: String,
     override val parameters: Map<String, String>
@@ -21,7 +21,7 @@ private class KtorPersistentJob(
  * 安装调度器
  * @since 2.6.0
  */
-@Suppress("unused")
+@Deprecated("别用了，因为 ktor 跨版本的 api并不稳定;看代码直接复制好了")
 fun Application.installScheduler(serverConfig: ServerConfig, scheduler: Scheduler) {
     routing {
         post((serverConfig.prefix ?: "") + "/t/{env}/{hostname}/{type}") {

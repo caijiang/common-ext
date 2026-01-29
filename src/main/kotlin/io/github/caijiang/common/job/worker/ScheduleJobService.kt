@@ -10,7 +10,7 @@ import java.util.*
 interface ScheduleJobService {
 
     /**
-     * 调度一个可序列化任务
+     * 马上调度一个一次性临时任务
      */
     fun submitTemporaryJob(job: TemporaryJob)
 

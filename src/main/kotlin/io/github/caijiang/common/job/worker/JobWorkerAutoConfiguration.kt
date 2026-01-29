@@ -4,7 +4,6 @@ import io.github.caijiang.common.Slf4j.Companion.log
 import io.github.caijiang.common.job.scheduler.Scheduler
 import io.github.caijiang.common.job.worker.bean.SchedulerScheduleJobService
 import io.github.caijiang.common.job.worker.bean.TaskSchedulerScheduleJobService
-import io.github.caijiang.common.k8s.KubernetesUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -48,7 +47,6 @@ open class JobWorkerAutoConfiguration {
             return SchedulerScheduleJobService(
                 jobTypeRunner,
                 scheduler,
-                KubernetesUtils.currentNamespace() ?: "default"
             )
         }
         // 2，查看是否在 k8s 环境,在的话 关注一下有没有调度 api;
@@ -58,7 +56,7 @@ open class JobWorkerAutoConfiguration {
         // SchedulingConfigurer.class, TaskScheduler.class, ScheduledExecutorService.class
         if (s != null) {
             log.info("存在集群调度服务 使用集群调度:{}", configuration.readSchedulerServiceUrl())
-            return SchedulerScheduleJobService(jobTypeRunner, s, KubernetesUtils.currentNamespace() ?: "default")
+            return SchedulerScheduleJobService(jobTypeRunner, s)
         }
 
         if (taskScheduler != null) {

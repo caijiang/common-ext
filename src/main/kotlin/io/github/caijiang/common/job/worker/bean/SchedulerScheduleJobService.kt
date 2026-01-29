@@ -6,12 +6,13 @@ import io.github.caijiang.common.job.worker.JobTypeRunner
 import io.github.caijiang.common.job.worker.PersistentJob
 import io.github.caijiang.common.job.worker.ScheduleJobService
 import io.github.caijiang.common.job.worker.TemporaryJob
+import io.github.caijiang.common.k8s.KubernetesUtils
 import java.util.*
 
 class SchedulerScheduleJobService(
     runner: JobTypeRunner,
     private val scheduler: Scheduler,
-    private val env: String = "default",
+    private val env: String = KubernetesUtils.currentNamespace() ?: "default",
     private val hostname: String = System.getenv("HOSTNAME"),
 ) :
     ScheduleJobService {

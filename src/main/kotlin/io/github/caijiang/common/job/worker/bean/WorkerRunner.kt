@@ -27,11 +27,27 @@ internal object WorkerRunner {
                     override val parameters: Map<String, String>
                         get() = ps
                 })
-                log.info("任务:{},参数:{}完成,即将使用退出代码 0 结束进程", type, ps)
-                exitProcess(0)
+                log.info("任务:{},参数:{}完成,即将使用退出代码 0 结束 进程", type, ps)
+                if (try {
+                        runner.quitApplication()
+                    } catch (e: Exception) {
+                        false
+                    }
+                )
+                    exitProcess(0)
+                else
+                    Runtime.getRuntime().halt(0)
             } catch (e: Throwable) {
                 log.error("执行任务:{},参数:{}报错,即将使用退出代码 1 结束进程", type, ps, e)
-                exitProcess(1)
+                if (try {
+                        runner.quitApplication()
+                    } catch (e: Exception) {
+                        false
+                    }
+                )
+                    exitProcess(1)
+                else
+                    Runtime.getRuntime().halt(1)
             }
         }
     }

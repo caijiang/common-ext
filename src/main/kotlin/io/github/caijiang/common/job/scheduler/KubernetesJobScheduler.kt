@@ -33,10 +33,23 @@ class KubernetesJobScheduler(
         newSpec.containers.forEach {
             buildEnvsFor(it, job)
         }
+        // 规则
         newSpec.restartPolicy = "Never"
+        // 移除所有探针
+        newSpec.containers.forEach {
+            removeAllProbe(it)
+        }
+        // 移除 node
+        newSpec.nodeName = null
         return PodTemplateSpecBuilder()
             .withSpec(newSpec)
             .build()
+    }
+
+    private fun removeAllProbe(container: Container) {
+        container.readinessProbe = null
+        container.startupProbe = null
+        container.livenessProbe = null
     }
 
     private fun buildEnvsFor(container: Container, job: SerializableJob) {
