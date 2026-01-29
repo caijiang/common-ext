@@ -10,7 +10,7 @@ data class JobWorkerConfiguration(
     /**
      * 调度服务的url
      */
-    val schedulerServiceUrl: String? = null,
+    var schedulerServiceUrl: String? = null,
 ) {
     /**
      * 读取这个
