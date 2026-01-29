@@ -26,7 +26,7 @@ open class SendNoticeServiceImpl(
                 FeishuNotifyTool.sendMessage(
                     targetConfig.properties!!["url"].toString(),
                     message,
-                    targetConfig.properties["key"]?.toString()
+                    targetConfig.properties?.get("key")?.toString()
                 )
             }
 
