@@ -12,17 +12,17 @@ import java.util.*
 data class NotifyConfiguration(
     // 配置通道,
     // 配置关注
-    val roles: Map<UrgentRole, Array<TargetConfig>> = mapOf(),
-    val threadSize: Int = 2
+    var roles: Map<UrgentRole, Array<TargetConfig>> = mapOf(),
+    var threadSize: Int = 2
 ) {
     data class TargetConfig(
         /**
          * 渠道
          */
-        val channel: NotifyChannel? = null,
+        var channel: NotifyChannel? = null,
         /**
          * 渠道配置
          */
-        val properties: Properties? = null
+        var properties: Properties? = null
     )
 }
