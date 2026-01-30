@@ -13,7 +13,7 @@ class SchedulerScheduleJobService(
     runner: JobTypeRunner,
     private val scheduler: Scheduler,
     private val env: String = KubernetesUtils.currentNamespace() ?: "default",
-    private val hostname: String = System.getenv("HOSTNAME"),
+    private val hostname: String = System.getenv("HOSTNAME") ?: "localhost",
 ) :
     ScheduleJobService {
     init {
