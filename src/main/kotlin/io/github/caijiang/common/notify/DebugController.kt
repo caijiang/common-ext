@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 @RequestMapping("/notify/debug")
-class DebugController(
+open class DebugController(
     private val sendNoticeService: SendNoticeService
 ) {
 
