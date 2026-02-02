@@ -4,6 +4,12 @@ import java.util.*
 
 /**
  * 调度任务服务
+ *
+ * **需要注意的是，调度任务服务只是负责调度的！！**
+ *
+ * 经过调度后，具体任务将被安排在[JobTypeRunner]中负责执行。如果执行器所处环境为该任务而临时建立的，那么在任务[JobTypeRunner.run]完成后会立刻[JobTypeRunner.quitApplication]并且尝试终止整个环境。
+ * 非集群环境则会尝试当前虚拟机中调用[JobTypeRunner]。
+ *
  * @since 2.6.0
  * @author CJ
  */
