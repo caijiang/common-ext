@@ -9,6 +9,7 @@ import java.util.*
 /**
  * - 临时:POST /t/env/hostname/type
  * - 永久: PUT /p/env/hostname/type/name?cron,timezone(ID)
+ * - 清理永久: DELETE /p/env/hostname/name
  * @author CJ
  */
 class RemoteScheduler(private val url: String) : Scheduler {
@@ -42,6 +43,15 @@ class RemoteScheduler(private val url: String) : Scheduler {
         ) {
             it.setBinary(SimpleJsonUtils.writeToBinary(job.parameters))
         }
+        if (response.status / 100 != 2) {
+            throw IllegalStateException("远程调度响应失败:${response.status}:${response.body?.toString(Charsets.UTF_8)}")
+        }
+    }
+
+    override fun cleanPersistentJob(env: String, hostname: String, jobName: String) {
+        val response = SimpleHttpUtils.httpAccess(
+            "$url/p/${env}/${hostname}/${jobName}", "DELETE"
+        )
         if (response.status / 100 != 2) {
             throw IllegalStateException("远程调度响应失败:${response.status}:${response.body?.toString(Charsets.UTF_8)}")
         }

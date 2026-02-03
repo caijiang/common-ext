@@ -22,4 +22,10 @@ interface Scheduler {
      * @param env 机器所在环境，缺省为`default`
      */
     fun submitPersistentJob(env: String, hostname: String, cron: String, job: PersistentJob, timezone: TimeZone)
+
+    /**
+     * 清理定时调度任务
+     * @param env 机器所在环境，缺省为`default`
+     */
+    fun cleanPersistentJob(env: String, hostname: String, jobName: String)
 }

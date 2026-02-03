@@ -170,4 +170,16 @@ class KubernetesJobScheduler(
             }
     }
 
+    override fun cleanPersistentJob(env: String, hostname: String, jobName: String) {
+        client.batch().v1().cronjobs()
+            .resource(
+                CronJobBuilder()
+                    .withNewMetadata()
+                    .withName("ce-job-$jobName")
+                    .endMetadata()
+                    .build()
+            )
+            .delete()
+    }
+
 }

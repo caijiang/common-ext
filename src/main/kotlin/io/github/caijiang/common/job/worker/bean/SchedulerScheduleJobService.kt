@@ -21,13 +21,20 @@ class SchedulerScheduleJobService(
     }
 
     override fun submitTemporaryJob(job: TemporaryJob) {
+        WorkerRunner.valid(job)
         log.debug("向 Scheduler 发起 temporary 调度请求:当前设备:{},类型:{}", hostname, job.type)
         scheduler.submitTemporaryJob(env, hostname, job)
     }
 
     override fun submitPersistentJob(cron: String, job: PersistentJob, timezone: TimeZone, springCronSeconds: String) {
+        WorkerRunner.valid(job)
         log.debug("向 Scheduler 发起 persistent 调度请求:当前设备:{},类型:{},名称:{}", hostname, job.type, job.name)
         scheduler.submitPersistentJob(env, hostname, cron, job, timezone)
+    }
+
+    override fun cleanPersistentJob(jobName: String) {
+        WorkerRunner.validJobName(jobName)
+        scheduler.cleanPersistentJob(env, hostname, jobName)
     }
 
 }

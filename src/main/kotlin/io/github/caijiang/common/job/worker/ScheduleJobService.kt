@@ -32,4 +32,11 @@ interface ScheduleJobService {
         springCronSeconds: String = "0"
     )
 
+    /**
+     * 清除掉一个定时的调度任务
+     * @param jobName [PersistentJob.name]
+     * @since 2.6.1
+     */
+    fun cleanPersistentJob(jobName: String)
+
 }

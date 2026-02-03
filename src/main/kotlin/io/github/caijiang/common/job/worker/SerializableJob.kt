@@ -6,7 +6,7 @@ package io.github.caijiang.common.job.worker
  */
 interface SerializableJob {
     /**
-     * 类型，必须符合[RFC 1123](https://datatracker.ietf.org/doc/html/rfc1123)
+     * 类型，必须符合[RFC 1123](https://datatracker.ietf.org/doc/html/rfc1123),长度不可超过 43
      */
     val type: String
 
@@ -28,7 +28,7 @@ interface TemporaryJob : SerializableJob
  */
 interface PersistentJob : SerializableJob {
     /**
-     * 全域唯一的任务名称,必须符合[RFC 1123](https://datatracker.ietf.org/doc/html/rfc1123)
+     * 全域唯一的任务名称,必须符合[RFC 1123](https://datatracker.ietf.org/doc/html/rfc1123),并且长度不可超过 53
      */
     val name: String
 }
