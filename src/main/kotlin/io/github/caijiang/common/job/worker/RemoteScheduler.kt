@@ -38,7 +38,7 @@ class RemoteScheduler(private val url: String) : Scheduler {
                     "UTF-8"
                 )
             }&timezone=${URLEncoder.encode(timezone.id, "UTF-8")}",
-            "POST",
+            "PUT",
             mapOf("Content-Type" to "application/json")
         ) {
             it.setBinary(SimpleJsonUtils.writeToBinary(job.parameters))

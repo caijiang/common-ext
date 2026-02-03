@@ -175,6 +175,7 @@ class KubernetesJobScheduler(
             .resource(
                 CronJobBuilder()
                     .withNewMetadata()
+                    .withNamespace(env)
                     .withName("ce-job-$jobName")
                     .endMetadata()
                     .build()
