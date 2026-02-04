@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean
 @AutoConfiguration
 @ConditionalOnClass(OSSClientBuilder::class)
 @ConditionalOnMissingBean(OssUsageService::class)
-@ConditionalOnProperty(prefix = "oss", name = ["end-point", "access-secret"])
+@ConditionalOnProperty(prefix = "oss", name = ["pub-bucket", "prv-bucket", "access-secret", "region"])
 @EnableConfigurationProperties(OssProperties::class)
 open class OssUsageAutoConfiguration {
     @Bean

@@ -93,7 +93,20 @@ class OssUsageServiceImpl(private val properties: OssProperties) : OssUsageServi
                     (properties.expireDuration ?: Duration.ofHours(1)).toMillis(),
         )
         try {
-            val signedUrl = ossClient.generatePresignedUrl(request)
+            val clientBuilderConfiguration = ClientBuilderConfiguration()
+            clientBuilderConfiguration.signatureVersion = SignVersion.V4
+
+            val client = OSSClientBuilder.create().endpoint(
+                properties.endPoint
+                    ?.replace("-internal", "")
+            ).credentialsProvider(
+                DefaultCredentialProvider(
+                    properties.accessKey,
+                    properties.accessSecret
+                )
+            ).clientConfiguration(clientBuilderConfiguration).region(properties.region).build()
+
+            val signedUrl = client.generatePresignedUrl(request)
 //        return StrUtil.replace(signedUrl.toString(), "+", "%2B")
             return signedUrl.toString()
         } catch (e: IOException) {
