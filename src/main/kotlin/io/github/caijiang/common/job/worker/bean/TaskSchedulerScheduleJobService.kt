@@ -48,7 +48,7 @@ class TaskSchedulerScheduleJobService(
             taskScheduler.schedule({
                 log.debug("TaskScheduler 执行 persistent 调度请求:类型:{},名称:{}", job.type, job.name)
                 runner.run(job)
-            }, CronTrigger("$springCronSeconds $cron", TimeZone.getDefault()))
+            }, CronTrigger("$springCronSeconds $cron", timezone))
         }
     }
 

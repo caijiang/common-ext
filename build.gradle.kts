@@ -156,6 +156,9 @@ dependencies {
 
     // k8s
     compileAndTest("io.fabric8:kubernetes-client:7.4.0")
+
+    // logback
+    compileAndTest("ch.qos.logback:logback-classic:1.2.13")
 }
 
 tasks.test {
